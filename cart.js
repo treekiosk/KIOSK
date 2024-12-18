@@ -1,6 +1,21 @@
 const cart = document.getElementById("cart-list");
 let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
 
+const firebaseConfig = {
+    apiKey: "AIzaSyDruA1fSmRQqM-xDgJhgu9KKVGWj8GpuKQ",
+    authDomain: "tree-kiosk-system-v2.firebaseapp.com",
+    databaseURL: "https://tree-kiosk-system-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "tree-kiosk-system-v2",
+    storageBucket: "tree-kiosk-system-v2.appspot.com",
+    messagingSenderId: "719927565453",
+    appId: "1:719927565453:web:caa088914a03dcb2e896c4"
+};
+
+
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 function init() {
     const urlParams = new URLSearchParams(window.location.search);
     const itemId = urlParams.get('id');
@@ -13,8 +28,8 @@ function init() {
 
         addItemToOrder({ id: itemId, image, description, price , quantity });
         saveOrder(); // Save order to localStorage
-        window.location.href = 'main.html'; 
-    }
+        window.close();
+        }
     cartshow();
 }
 
@@ -96,3 +111,48 @@ function debounce(func, wait) {
     };
 }
 
+function openwindow(name) {
+    var url = `${name}`;
+    var win = window.open(url, '_blank');
+    win.focus();
+  }
+  
+
+
+  
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+  location.href = "index.html"  
+  }
+  });
+
+  
+  async function setlocal(email) {
+    console.log("Email being used to fetch document:", email);  // 이메일 확인용 로그 추가
+
+    const docRef = db.collection("data").doc("owner").collection("email").doc(email);
+
+    docRef.get().then((doc) => {
+        if (doc.exists) {
+            console.log("Document data:", doc.data());  // 문서 데이터 확인용 로그 추가
+            const name = doc.data().name;
+            const isActive = doc.data().active;
+
+            if (isActive !== false) {
+                localStorage.setItem("name", name);
+                localStorage.setItem("email", email);
+            } else {
+           location.href = "index.html"
+            }
+        } else {
+         location.href = "index.html"
+        }
+    }).catch((error) => {
+       location.href = "index.html"
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  var email = localStorage.getItem('email');
+  setlocal(email);
+});
