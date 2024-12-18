@@ -8,10 +8,10 @@
 
 >버전
 
-// V1
+❎V1
 [https://github.com/202420505/TREE-KIOSK](https://github.com/202420505/TREE-KIOSK)
 
-// V2
+✅V2
 [https://github.com/202420505/TREE-KIOSK-V2](https://github.com/202420505/TREE-KIOSK-V2)
 
 >설치 방법
