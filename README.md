@@ -15,14 +15,14 @@
 >버전
 
 // 구 버전
-[https://github.com/202420505/TREE-KIOSK](url)
+[https://github.com/202420505/TREE-KIOSK](https://github.com/202420505/TREE-KIOSK)
 
 // V2
-[https://github.com/202420505/TREE-KIOSK-V2](url)
+[https://github.com/202420505/TREE-KIOSK-V2](https://github.com/202420505/TREE-KIOSK-V2)
 
 >설치 방법
 
-1. [다운로드](https://github.com/202420505/TREE-KIOSK-V2/releases/latest)
+1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
 
 2. 설치
 
