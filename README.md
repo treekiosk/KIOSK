@@ -9,10 +9,10 @@
 >버전
 
 ❎V1
-[https://github.com/202420505/TREE-KIOSK](https://github.com/202420505/TREE-KIOSK)
+[https://github.com/treeentertainment/KIOSK/tree/main/V1](https://github.com/treeentertainment/KIOSK/tree/main/V1)
 
 ✅V2
-[https://github.com/202420505/TREE-KIOSK-V2](https://github.com/202420505/TREE-KIOSK-V2)
+[https://github.com/treeentertainment/KIOSK/tree/main/V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
 
 >설치 방법
 
