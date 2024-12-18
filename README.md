@@ -1,4 +1,4 @@
-## TREE KIOSK SYSTEM V2
+## TREE KIOSK SYSTEM
 
 >프로젝트 언어
 
