@@ -8,11 +8,9 @@
 
 >버전
 
-❌V1
-[https://github.com/treeentertainment/KIOSK/tree/main/V1](https://github.com/treeentertainment/KIOSK/tree/main/V1)
+[❌V1](https://github.com/treeentertainment/KIOSK/tree/main/V1)
 
-✅V2
-[https://github.com/treeentertainment/KIOSK/tree/main/V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
+[✅V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
 
 >설치 방법
 
