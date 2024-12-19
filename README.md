@@ -8,7 +8,7 @@
 
 >버전
 
-❎V1
+❌V1
 [https://github.com/treeentertainment/KIOSK/tree/main/V1](https://github.com/treeentertainment/KIOSK/tree/main/V1)
 
 ✅V2
