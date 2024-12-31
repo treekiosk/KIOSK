@@ -5,19 +5,19 @@
 >
 > V3 을 개발중입니다.
 
->프로젝트 언어
+> ## 프로젝트 언어
 
 <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
 <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
 <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white">
 
->버전
+> ## 버전
 
 [❌V1](https://github.com/treeentertainment/KIOSK/tree/main/V1)
 
-[✅V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
+[❌V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
 
->설치 방법
+> ## 설치 방법
 
 1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
 
@@ -27,7 +27,7 @@
 
 4. 완료
 
->업데이트 상황
+> ## 업데이트 상황
 
  - [ ] V3
 
@@ -36,10 +36,10 @@
 [@202420505](https://github.com/202420505) [@treeentertainement](https://github.com/treeentertainment) [@treekiosk](https://github.com/treekiosk) [@treenowlive](https://github.com/treenowlive)
 
 
->문의
+> ## 문의
 
 moonlight10529@gmail.com
 
->URL
+> ## URL
 
 https://treekiosk.pages.dev
