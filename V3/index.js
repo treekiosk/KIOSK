@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Google OAuth 로그인
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     try {
-        await account.createOAuth2Session('google', 'https://127.0.0.1:5500', 'https://127.0.0.1:5500');
+        await account.createOAuth2Session('google', 'https://treekiosk.pages.dev', 'https://treekiosk.pages.dev');
         console.log('Google OAuth 세션 생성 완료');
         checkAuthState();
     } catch (error) {
