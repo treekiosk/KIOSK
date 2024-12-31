@@ -1,10 +1,5 @@
 ## TREE KIOSK SYSTEM
 
-> [!CAUTION]
-> 현재 데이터 베이스 문제로 작동을 중단 합니다.
->
-> V3 을 개발중입니다.
-
 > ## 프로젝트 언어
 
 <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
