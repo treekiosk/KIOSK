@@ -1,7 +1,4 @@
-## TREE KIOSK SYSTEM V2
-
-> [!CAUTION]
-> V2 업데이트 이후 데이터 저장 방식등이 바뀌었으므로 더이상 BETA 버전은 사용이 불가능 합니다.
+## TREE KIOSK SYSTEM V3
 
 >프로젝트 언어
 
@@ -11,14 +8,7 @@
 
 >방문 수
 
-<a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2F202420505%2FTREE-KIOSK-V2&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
->버전
-
-// 구 버전
-[https://github.com/202420505/TREE-KIOSK](url)
-
-// V2
-[https://github.com/202420505/TREE-KIOSK-V2](url)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Ftreeentertainment%2FKIOSK%2Ftree%2Fmain%2FV3&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=%EB%B0%A9%EB%AC%B8%EC%9E%90+%EC%88%98&edge_flat=false)](https://hits.seeyoufarm.com)
 
 >설치 방법
 
@@ -33,11 +23,11 @@
 >업데이트 상황
 
  - [x] 이미지 로딩 속도 개선
- - [x] 2. apk 및 exe 만들기
+ - [ ] 2. apk 및 exe 만들기
 
 >저작권
 
-[@202420505](https://github.com/202420505) [@treeentertainement](https://github.com/treeentertainment) [@treekiosk](https://github.com/treekiosk) [@treenowlive](https://github.com/treenowlive)
+[@202420505](https://github.com/202420505)
 
 
 >문의
@@ -47,5 +37,3 @@ moonlight10529@gmail.com
 >URL
 
 https://treekiosk.pages.dev
-<br><br>
-https://treekiosk.github.io
