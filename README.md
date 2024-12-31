@@ -17,6 +17,8 @@
 
 [❌V2](https://github.com/treeentertainment/KIOSK/tree/main/V2)
 
+[✅V3](https://github.com/treeentertainment/KIOSK/tree/main/V3)
+
 > ## 설치 방법
 
 1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
@@ -33,7 +35,7 @@
 
 >저작권
 
-[@202420505](https://github.com/202420505) [@treeentertainement](https://github.com/treeentertainment) [@treekiosk](https://github.com/treekiosk) [@treenowlive](https://github.com/treenowlive)
+[@202420505](https://github.com/202420505)
 
 
 > ## 문의
