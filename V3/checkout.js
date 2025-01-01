@@ -105,7 +105,7 @@
                     );
             
                     // 주문 데이터 제출 후 번호 증가
-                    const newOrderNumber = currentOrderNumber + 1;
+                    const newOrderNumber = validDocumentId + 1;
             
                     // 가게의 주문 번호 업데이트
                     await database.updateDocument(
