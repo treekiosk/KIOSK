@@ -28,3 +28,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: image  # 배포할 폴더 경로
+        cname: image.treekiosk.moonsparkle.tech
