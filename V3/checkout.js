@@ -84,7 +84,7 @@
             
                     // 첫 번째 문서를 기준으로 진행
                     const ownerDocument = ownerDocuments.documents[0];
-                    const currentOrderNumber = ownerDocument.number || 0;
+                    const currentOrderNumber = ownerDocument.order || 0;
             
                     // 주문 데이터 생성
                     const newOrder = {
