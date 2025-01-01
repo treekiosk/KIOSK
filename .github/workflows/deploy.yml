@@ -16,8 +16,8 @@ jobs:
     - name: Create package.json if not exists
       run: |
         if [ ! -f package.json ]; then
-          echo '{}' > package.json
           npm init -y
+          jq '.scripts.build = "echo Build step executed successfully!"' package.json > temp.json && mv temp.json package.json
         fi
 
     - name: Set up Node.js
@@ -29,15 +29,10 @@ jobs:
       run: npm install
 
     - name: Build project
-      run: |
-        if [ ! -f package.json ]; then
-          echo "package.json is missing. Skipping build."
-          exit 0
-        fi
-        npm run build
+      run: npm run build
 
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: image  # 빌드 결과물이 저장된 폴더
+        publish_dir: dist  # 빌드 결과물이 저장된 폴더
