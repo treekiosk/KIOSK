@@ -20,8 +20,8 @@ jobs:
 
     - name: Build project
       run: |
-        npm install  # 필요한 경우
         npm init
+        npm install  # 필요한 경우
         npm run build  # output 폴더를 생성하는 명령어
 
     - name: Deploy to GitHub Pages
