@@ -5,7 +5,7 @@ const client = new Appwrite.Client()
 
 const account = new Appwrite.Account(client);
 const database = new Appwrite.Databases(client);
-
+let clickCount = 0;
 // 유틸리티 함수: 특정 요소를 보여주거나 숨김
 function toggleVisibility(elementsToShow, elementsToHide) {
     elementsToShow.forEach(id => document.getElementById(id).style.display = 'block');
@@ -63,21 +63,44 @@ async function checkAuthState() {
     }
 }
 
-// 로그아웃 처리
-document.getElementById('logout-link').addEventListener('click', async (e) => {
-    e.preventDefault();
-    if (confirm('정말로 로그아웃하시겠습니까?')) {
+async function logout() {
         try {
             await account.deleteSession('current');
-            console.log('로그아웃 완료');
             localStorage.clear();
             sessionStorage.clear();
-            toggleVisibility(['login-container'], ['front']);
+            toggleVisibility(['login-container'], ['front']);    
+            // Google 세션 로그아웃
+            const googleLogoutUrl = 'https://accounts.google.com/Logout';
+            const win = window.open(googleLogoutUrl, '_blank');
+            if (win) {
+                win.close();
+            } else {
+                console.error('Unable to open Google logout window.');
+            }
+    
+            // 상태 초기화
+            localStorage.clear();
+            sessionStorage.clear();
+            clickCount = 0;
+            window.location.reload(); 
         } catch (error) {
-            console.error('로그아웃 중 오류 발생:', error);
+            console.error('Error during sign out:', error);
         }
     }
-});
+      
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+        e.preventDefault(); // Prevent the default link behavior
+        clickCount++; // Increment click count
+    
+        if (clickCount === 5) { // Check if clicked 5 times
+            try {
+                await logout();
+            } catch (error) {
+                console.error('Error during sign out:', error);
+            }
+        }
+    });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthState();
