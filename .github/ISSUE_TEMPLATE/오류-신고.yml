@@ -37,16 +37,17 @@ body:
         2. ...
         3. ...
         4. ...
-     validations:
-         required: true
+    validations:
+      required: true
+
   - type: input
     id: expected_behavior
     attributes:
       label: "원하는 행동"
       description: "버그가 해결된 후 어떻게 동작했으면 좋겠는지 적어주세요."
       placeholder: "원하는 동작을 입력하세요."
-      validations:
-          required: true
+    validations:
+      required: true
 
   - type: textarea
     id: additional_notes
@@ -54,8 +55,8 @@ body:
       label: "기타 사항"
       description: "추가로 참고할 만한 내용을 적어주세요."
       placeholder: "기타 정보를 입력하세요."
-      validations:
-      required: true
+    validations:
+      required: false
 
   - type: dropdown
     id: platform
@@ -65,7 +66,7 @@ body:
       options:
         - "노트북 또는 데스크톱"
         - "스마트폰 또는 태블릿"
-      validations:
+    validations:
       required: true
 
   - type: input
@@ -74,7 +75,7 @@ body:
       label: "장치 정보"
       description: "사용 중인 장치의 정보 (예: OS, 브라우저, 버전 등)를 입력해주세요."
       placeholder: "예: OS: Windows 11, Browser: Chrome, Version: 114"
-     validations:
+    validations:
       required: true
 
   - type: file-upload
