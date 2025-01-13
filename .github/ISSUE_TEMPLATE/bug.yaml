@@ -5,8 +5,6 @@ labels:
   - bug
   - no assignees
   
-assignees:
-  - 202420505
 body:
   - type: markdown
     attributes:
