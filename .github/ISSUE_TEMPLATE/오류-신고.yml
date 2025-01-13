@@ -1,0 +1,74 @@
+name: "오류 신고"
+description: "오류를 신고하여 프로그래머를 도와주세요."
+title: "[오류] "
+labels: 
+  - bug
+assignees:
+  - 202420505
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **아래의 양식을 작성하여 오류를 신고해주세요. 최대한 구체적으로 적어주시면 도움이 됩니다.**
+
+  - type: input
+    id: bug_description
+    attributes:
+      label: "버그 설명"
+      description: "발생한 버그에 대한 구체적인 설명을 적어주세요."
+      placeholder: "버그를 구체적으로 설명해주세요."
+
+  - type: textarea
+    id: bug_steps
+    attributes:
+      label: "버그 생성된 방법"
+      description: |
+        버그가 어떻게 발생했는지 순서대로 적어주세요.
+        예: 
+        1. '...'로 이동
+        2. '...'를 클릭
+        3. '...'로 스크롤
+        4. 에러 발생
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+        4. ...
+  
+  - type: input
+    id: expected_behavior
+    attributes:
+      label: "원하는 행동"
+      description: "버그가 해결된 후 어떻게 동작했으면 좋겠는지 적어주세요."
+      placeholder: "원하는 동작을 입력하세요."
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: "기타 사항"
+      description: "추가로 참고할 만한 내용을 적어주세요."
+      placeholder: "기타 정보를 입력하세요."
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: "사용 중인 플랫폼"
+      description: "오류가 발생한 환경을 선택해주세요."
+      options:
+        - "노트북 또는 데스크톱"
+        - "스마트폰 또는 태블릿"
+
+  - type: input
+    id: device_info
+    attributes:
+      label: "장치 정보"
+      description: "사용 중인 장치의 정보 (예: OS, 브라우저, 버전 등)를 입력해주세요."
+      placeholder: "예: OS: Windows 11, Browser: Chrome, Version: 114"
+
+  - type: file-upload
+    id: screenshots
+    attributes:
+      label: "스크린샷 또는 파일"
+      description: "오류 관련 스크린샷 또는 파일을 첨부해주세요."
+      multiple: true
