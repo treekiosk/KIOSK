@@ -3,6 +3,8 @@ description: 오류를 신고하여 프로그래머를 도와주세요.
 title: "[Bug] 제목을 입력하세요"
 labels: 
   - bug
+  - no assignees
+  
 assignees:
   - 202420505
 body:
