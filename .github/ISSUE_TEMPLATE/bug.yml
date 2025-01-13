@@ -1,6 +1,6 @@
 name: 오류 신고
-description: 오류를 신고하여 프로그래머를 도와주세요.
-title: "[Bug] 제목을 입력하세요"
+description: 오류 신고 폼 입니다.
+title: ""
 labels: 
   - bug
   - help wanted
