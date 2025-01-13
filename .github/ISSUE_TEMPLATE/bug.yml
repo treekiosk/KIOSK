@@ -1,6 +1,6 @@
 name: 오류 신고
 description: 오류 신고 폼 입니다.
-title: ""
+title: "[버그]"
 labels: 
   - bug
   - help wanted
