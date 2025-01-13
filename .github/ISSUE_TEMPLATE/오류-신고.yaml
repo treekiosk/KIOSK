@@ -29,21 +29,21 @@ body:
           attributes:
             label: 스마트폰 또는 휴대전화 정보
             description: 기기 정보를 적어 주세요.
-            placeholder: 예: Device: Galaxy S22, OS: Android 13, Browser: Chrome
+            placeholder: "예: Device: Galaxy S22, OS: Android 13, Browser: Chrome"
 
         - type: input
           id: mobile_os
           attributes:
             label: 운영 체제(OS)
             description: 사용 중인 OS를 적어 주세요.
-            placeholder: 예: Android 13 또는 iOS 16
+            placeholder: "예: Android 13 또는 iOS 16"
 
         - type: input
           id: mobile_browser
           attributes:
             label: 브라우저
             description: 사용 중인 브라우저를 적어 주세요.
-            placeholder: 예: Chrome, Safari
+            placeholder: "예: Chrome, Safari"
 
   - type: conditional
     attributes:
@@ -54,14 +54,14 @@ body:
           attributes:
             label: 운영 체제(OS)
             description: 사용 중인 OS를 적어 주세요.
-            placeholder: 예: Windows 10, macOS Ventura, Ubuntu 22.04
+            placeholder: "예: Windows 10, macOS Ventura, Ubuntu 22.04"
 
         - type: input
           id: desktop_browser
           attributes:
             label: 브라우저
             description: 사용 중인 브라우저를 적어 주세요.
-            placeholder: 예: Chrome 115, Safari 16.5, Firefox 115
+            placeholder: "예: Chrome 115, Safari 16.5, Firefox 115"
 
   - type: markdown
     attributes:
@@ -73,29 +73,25 @@ body:
     attributes:
       label: 버그 설명
       description: 버그에 대한 구체적인 내용을 작성해 주세요.
-      placeholder: 이곳에 버그 설명을 입력하세요.
+      placeholder: "이곳에 버그 설명을 입력하세요."
 
   - type: textarea
     id: reproduction_steps
     attributes:
       label: 버그 생성 방법
       description: 버그를 재현할 수 있는 단계를 순서대로 작성해 주세요.
-      placeholder: |
-        1. Go to '...'
-        2. Click on '...'
-        3. Scroll down to '...'
-        4. See error
+      placeholder: "1. Go to '...'\n2. Click on '...'\n3. Scroll down to '...'\n4. See error"
 
   - type: input
     id: expected_behavior
     attributes:
       label: 원하는 행동
       description: 이 버그가 해결될 경우 기대되는 동작을 작성해 주세요.
-      placeholder: 예: "에러 없이 정상적으로 저장이 완료됩니다."
+      placeholder: "예: 에러 없이 정상적으로 저장이 완료됩니다."
 
   - type: textarea
     id: additional_context
     attributes:
       label: 기타 사항
       description: 추가적으로 알리고 싶은 내용을 적어 주세요.
-      placeholder: 이곳에 기타 사항을 입력하세요.
+      placeholder: "이곳에 기타 사항을 입력하세요."
