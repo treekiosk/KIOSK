@@ -78,11 +78,8 @@ body:
     validations:
       required: true
 
-  - type: file-upload
+  - type: textarea
     id: screenshots
     attributes:
       label: "스크린샷 또는 파일"
       description: "오류 관련 스크린샷 또는 파일을 첨부해주세요."
-      multiple: true
-    validations:
-      required: false
