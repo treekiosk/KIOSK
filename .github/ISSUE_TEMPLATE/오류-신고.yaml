@@ -21,9 +21,8 @@ body:
         - 데스크톱
 
   - type: conditional
-    id: mobile_section
     attributes:
-      condition: "{{ device_type == '모바일' }}"
+      condition: "{{device_type == '모바일'}}"
       fields:
         - type: input
           id: mobile_device
@@ -47,9 +46,8 @@ body:
             placeholder: 예: Chrome, Safari
 
   - type: conditional
-    id: desktop_section
     attributes:
-      condition: "{{ device_type == '데스크톱' }}"
+      condition: "{{device_type == '데스크톱'}}"
       fields:
         - type: input
           id: desktop_os
