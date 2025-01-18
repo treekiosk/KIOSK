@@ -33,7 +33,7 @@
 
 > ## 문의
 
-moonlight10529@gmail.com
+[mrq.develop@hotmail.com](mailto:mrq.develop@hotmail.com)
 
 > ## URL
 
