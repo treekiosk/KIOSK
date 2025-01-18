@@ -14,7 +14,7 @@
 
 > ## 설치 방법
 
-1. [다운로드](https://github.com/202420505/TREE-KIOSK-V2/releases/latest)
+1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
 
 2. 설치
 
@@ -25,7 +25,7 @@
 > ## 업데이트 상황
 
  - [x] 이미지 로딩 속도 개선
- - [ ] apk 및 exe 만들기
+ - [X] apk 및 exe 만들기
 
 > ## 저작권
 
