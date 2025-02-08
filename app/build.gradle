@@ -26,4 +26,6 @@ dependencies {
     implementation 'io.appwrite:sdk-for-android:3.+' // 최신 Appwrite SDK
     implementation 'androidx.appcompat:appcompat:1.4.0' // Jetpack AndroidX 지원
     implementation 'androidx.webkit:webkit:1.4.0' // WebView JavaScript 지원
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0")) // Kotlin 버전 통일
+
 }
