@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Copy ASSETS from `3.1` Folder
-        run: cp -r 3.1 app/src/main/assets
+        run: cp -r /3.1 app/src/main/assets
 
       - name: Set up JDK
         uses: actions/setup-java@v3
