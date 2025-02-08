@@ -7,7 +7,7 @@ android {
     compileSdkVersion 33  // Or any version you'd like to use (e.g., 33, 32, etc.)
     
     defaultConfig {
-        applicationId "your.package.name"
+        applicationId "me.moontree.treekiosk.v3"
         minSdkVersion 21  // Minimum SDK your app supports
         targetSdkVersion 33  // Target SDK version
         versionCode 1
