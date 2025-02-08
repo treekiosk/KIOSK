@@ -1,0 +1,42 @@
+name: Build WebView APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout V3.1 Branch for ASSETS
+        uses: actions/checkout@v4
+        with:
+          ref: V3.1
+          path: assets_source
+
+      - name: Copy ASSETS to Project
+        run: cp -r assets_source/ASSETS app/src/main/assets
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
