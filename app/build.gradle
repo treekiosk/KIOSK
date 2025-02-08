@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33  // Or any version you'd like to use (e.g., 33, 32, etc.)
+    compileSdkVersion 34 // Or any version you'd like to use (e.g., 33, 32, etc.)
     
     defaultConfig {
         applicationId "me.moontree.treekiosk.v3"
