@@ -14,14 +14,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout V3.1 Branch for ASSETS
-        uses: actions/checkout@v4
-        with:
-          ref: V3.1
-          path: assets_source
-
-      - name: Copy ASSETS to Project
-        run: cp -r assets_source/ASSETS app/src/main/assets
+      - name: Copy ASSETS from `3.1` Folder
+        run: cp -r 3.1 app/src/main/assets
 
       - name: Set up JDK
         uses: actions/setup-java@v3
