@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 try {
                     // OAuth 로그인 시작
-                    account.createOAuth2Session("google", "https://your-app-url.com", "https://your-app-url.com");
+                    account.createOAuth2Session("google");
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         public void checkAuthState() {
             new Thread(() -> {
                 try {
-                    var user = account.get();
+                    io.appwrite.models.User user = account.get();
                     String email = user.getEmail();
 
                     // 회원 여부 확인
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
                 if (response.getTotal() > 0) {
-                    var document = response.getDocuments().get(0);
+                    io.appwrite.models.Document document = response.getDocuments().get(0);
                     return document.getBoolean("active", false); // active 값이 true이면 회원
                 }
             } catch (AppwriteException e) {
