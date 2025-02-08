@@ -6,7 +6,7 @@
     <application
         android:allowBackup="true"
         android:theme="@style/Theme.Treekiosk"
-        android:label="Tree Kiosk v3">
+        android:label="TREE KIOSK V3.1">
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
