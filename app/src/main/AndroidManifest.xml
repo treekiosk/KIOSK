@@ -5,7 +5,7 @@
 
     <application
         android:allowBackup="true"
-        android:theme="@style/Theme.Treekiosk"
+        android:theme="@style/Theme.KIOSK"
         android:label="TREE KIOSK V3.1">
         <activity android:name=".MainActivity"
             android:exported="true">
