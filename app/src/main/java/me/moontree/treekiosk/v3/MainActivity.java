@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
         // WebView에 HTML 파일 로드
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 초기화
-        client = new Client()
+        // Appwrite 클라이언트 초기화 (Context 전달 필요)
+        client = new Client(this) // MainActivity (Context) 전달
                 .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite 엔드포인트
                 .setProject("treekiosk"); // 프로젝트 ID
 
@@ -58,13 +58,16 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void loginWithOAuth() {
             runOnUiThread(() -> {
-                try {
-                    // OAuth 로그인 시작
-                    account.createOAuth2Session("google");
-                } catch (Exception e) {
-                    Log.e("OAuth", "로그인 중 오류 발생", e);
-                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                }
+                account.createOAuth2Session(MainActivity.this, "google", result -> {
+                    if (result.isSuccessful()) {
+                        Log.d("OAuth", "OAuth 로그인 성공");
+                        webView.evaluateJavascript("handleAuthResult(true, true);", null);
+                    } else {
+                        Log.e("OAuth", "OAuth 로그인 실패", result.getError());
+                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                    }
+                    return null;
+                });
             });
         }
 
