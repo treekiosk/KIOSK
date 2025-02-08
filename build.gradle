@@ -4,7 +4,9 @@ buildscript {
         google()
         mavenCentral()
     }
+    ext.kotlin_version = '1.8.0' // 최신 버전 설정
     dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.android.tools.build:gradle:7.4.0' // Ensure this is the correct version
     }
 }
