@@ -1,5 +1,25 @@
+// App-level build.gradle
 plugins {
     id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 33  // Or any version you'd like to use (e.g., 33, 32, etc.)
+    
+    defaultConfig {
+        applicationId "your.package.name"
+        minSdkVersion 21  // Minimum SDK your app supports
+        targetSdkVersion 33  // Target SDK version
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
 }
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
