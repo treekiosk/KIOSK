@@ -17,8 +17,15 @@ import io.appwrite.ID;
 import io.appwrite.Query;
 import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.DocumentList;
+import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
+
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.GlobalScope;
+import kotlinx.coroutines.launch;
+import kotlinx.coroutines.tasks.TaskKt;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -44,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         // WebView에 HTML 파일 로드
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 초기화 (Context 전달 필요)
-        client = new Client(this) // MainActivity (Context) 전달
+        // Appwrite 클라이언트 초기화
+        client = new Client(this)
                 .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite 엔드포인트
                 .setProject("treekiosk"); // 프로젝트 ID
 
@@ -58,67 +65,68 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void loginWithOAuth() {
             runOnUiThread(() -> {
-                account.createOAuth2Session(MainActivity.this, "google", result -> {
-                    if (result.isSuccessful()) {
-                        Log.d("OAuth", "OAuth 로그인 성공");
-                        webView.evaluateJavascript("handleAuthResult(true, true);", null);
-                    } else {
-                        Log.e("OAuth", "OAuth 로그인 실패", result.getError());
-                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                    }
-                    return null;
-                });
+                try {
+                    // OAuth 로그인 시작 (수정된 방식)
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            TaskKt.await(account.createOAuth2Session(MainActivity.this, "google"));
+                            runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(true, true);", null));
+                        } catch (Exception e) {
+                            Log.e("OAuth", "로그인 중 오류 발생", e);
+                            runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
+                        }
+                    };
+                } catch (Exception e) {
+                    Log.e("OAuth", "로그인 중 오류 발생", e);
+                }
             });
         }
 
         @JavascriptInterface
         public void checkAuthState() {
-            new Thread(() -> {
+            GlobalScope.launch(Dispatchers.IO) {
                 try {
-                    io.appwrite.models.User user = account.get();
+                    User user = TaskKt.await(account.get(User.class));
                     String email = user.getEmail();
 
-                    // 회원 여부 확인
                     boolean isMember = checkMembership(email);
 
-                    // JavaScript 함수 호출하여 UI 업데이트
                     String script = "handleAuthResult(true, " + isMember + ");";
                     runOnUiThread(() -> webView.evaluateJavascript(script, null));
-                } catch (AppwriteException e) {
+                } catch (Exception e) {
                     Log.e("Auth", "로그인 상태 확인 실패", e);
                     runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
                 }
-            }).start();
+            };
         }
 
         @JavascriptInterface
         public void logout() {
-            new Thread(() -> {
+            GlobalScope.launch(Dispatchers.IO) {
                 try {
-                    account.deleteSession("current");
+                    TaskKt.await(account.deleteSession("current"));
                     runOnUiThread(() -> {
                         Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
                         webView.evaluateJavascript("handleAuthResult(false, false);", null);
                     });
-                } catch (AppwriteException e) {
+                } catch (Exception e) {
                     Log.e("Auth", "로그아웃 실패", e);
                 }
-            }).start();
+            };
         }
 
         private boolean checkMembership(String email) {
             try {
-                DocumentList response = database.listDocuments(
+                DocumentList response = TaskKt.await(database.listDocuments(
                         "tree-kiosk", // 데이터베이스 ID
                         "owner",      // 컬렉션 ID
-                        Query.equal("email", email) // 이메일이 일치하는 문서 찾기
-                );
+                        Query.Companion.equal("email", email) // 이메일이 일치하는 문서 찾기
+                ));
 
                 if (response.getTotal() > 0) {
-                    io.appwrite.models.Document document = response.getDocuments().get(0);
-                    return document.getBoolean("active", false); // active 값이 true이면 회원
+                    return response.getDocuments().get(0).getBoolean("active", false);
                 }
-            } catch (AppwriteException e) {
+            } catch (Exception e) {
                 Log.e("Database", "회원 조회 실패", e);
             }
             return false;
