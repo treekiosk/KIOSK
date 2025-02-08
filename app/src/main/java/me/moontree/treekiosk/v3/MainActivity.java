@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
 
         // 로드할 HTML 페이지 (예: assets 내 HTML 파일 사용)
-        webView.loadUrl("file:///android_asset/android.html");
+        webView.loadUrl("file:///android_asset/index.html");
     }
 
     private class AndroidInterface {
