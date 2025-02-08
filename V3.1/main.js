@@ -206,8 +206,8 @@ function addItemToOrder({ id, image, description, price, quantity }) {
         order[existingIndex].price += quantity * (price / quantity);
     } else {
         order.push({ id, image, description, quantity, price });
-        saveOrder();
     }
+    saveOrder();
 }
 
 function saveOrder() {
