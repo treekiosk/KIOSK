@@ -12,6 +12,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import io.appwrite.Client;
 import io.appwrite.ID;
 import io.appwrite.Query;
@@ -21,17 +24,12 @@ import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
-import kotlinx.coroutines.GlobalScope;
-import kotlinx.coroutines.launch;
-import kotlinx.coroutines.tasks.TaskKt;
-
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private Client client;
     private Account account;
     private Databases database;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3); // Async Task Executor
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -66,29 +64,23 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    // OAuth 로그인 시작 (수정된 방식)
-                    GlobalScope.launch(Dispatchers.IO) {
-                        try {
-                            TaskKt.await(account.createOAuth2Session(MainActivity.this, "google"));
-                            runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(true, true);", null));
-                        } catch (Exception e) {
-                            Log.e("OAuth", "로그인 중 오류 발생", e);
-                            runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
-                        }
-                    };
+                    // OAuth 로그인 시작
+                    Intent intent = account.createOAuth2Session(MainActivity.this, "google");
+                    startActivity(intent);
+                    webView.evaluateJavascript("handleAuthResult(true, true);", null);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
+                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
                 }
             });
         }
 
         @JavascriptInterface
         public void checkAuthState() {
-            GlobalScope.launch(Dispatchers.IO) {
+            executorService.execute(() -> {
                 try {
-                    User user = TaskKt.await(account.get(User.class));
+                    User user = account.get();
                     String email = user.getEmail();
-
                     boolean isMember = checkMembership(email);
 
                     String script = "handleAuthResult(true, " + isMember + ");";
@@ -97,14 +89,14 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Auth", "로그인 상태 확인 실패", e);
                     runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
                 }
-            };
+            });
         }
 
         @JavascriptInterface
         public void logout() {
-            GlobalScope.launch(Dispatchers.IO) {
+            executorService.execute(() -> {
                 try {
-                    TaskKt.await(account.deleteSession("current"));
+                    account.deleteSession("current");
                     runOnUiThread(() -> {
                         Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
                         webView.evaluateJavascript("handleAuthResult(false, false);", null);
@@ -112,16 +104,16 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.e("Auth", "로그아웃 실패", e);
                 }
-            };
+            });
         }
 
         private boolean checkMembership(String email) {
             try {
-                DocumentList response = TaskKt.await(database.listDocuments(
+                DocumentList response = database.listDocuments(
                         "tree-kiosk", // 데이터베이스 ID
                         "owner",      // 컬렉션 ID
-                        Query.Companion.equal("email", email) // 이메일이 일치하는 문서 찾기
-                ));
+                        new String[]{Query.equal("email", email)} // 이메일이 일치하는 문서 찾기
+                );
 
                 if (response.getTotal() > 0) {
                     return response.getDocuments().get(0).getBoolean("active", false);
