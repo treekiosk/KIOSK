@@ -17,9 +17,6 @@ jobs:
       - name: Debug File Structure
         run: ls -al
 
-      - name: Copy ASSETS from `V3.1` Folder
-        run: cp -r V3.1/ app/src/main/assets
-
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
