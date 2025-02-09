@@ -22,10 +22,13 @@ import io.appwrite.Client;
 import io.appwrite.ID;
 import io.appwrite.Query;
 import io.appwrite.exceptions.AppwriteException;
+import io.appwrite.models.Document;
 import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
+import io.appwrite.oauth.OAuthProvider;
+
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
@@ -56,10 +59,11 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 설정
-        client = new Client(MainActivity.this);
-        client.setEndpoint("https://cloud.appwrite.io/v1");
-        client.setProject("treekiosk");
+        // Appwrite 클라이언트 설정 (setSelfSigned 추가)
+        client = new Client(MainActivity.this)
+                .setEndpoint("https://cloud.appwrite.io/v1")
+                .setProject("treekiosk")
+                .setSelfSigned(true);
 
         account = new Account(client);
         database = new Databases(client);
@@ -70,7 +74,10 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    Intent intent = account.createOAuth2Session(MainActivity.this, "google");
+                    Intent intent = account.createOAuth2Session(
+                        MainActivity.this,
+                        OAuthProvider.GOOGLE
+                    );
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
@@ -143,8 +150,9 @@ public class MainActivity extends AppCompatActivity {
                     if (result instanceof DocumentList) {
                         DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
                         if (!response.getDocuments().isEmpty()) {
-                            Map<String, Object> firstDocument = response.getDocuments().get(0);
-                            isActive = (Boolean) firstDocument.getOrDefault("active", false);
+                            Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
+                            Map<String, Object> data = firstDocument.getData();  // getData() 사용
+                            isActive = (Boolean) data.getOrDefault("active", false);
                         }
                     }
                     boolean finalIsActive = isActive;
