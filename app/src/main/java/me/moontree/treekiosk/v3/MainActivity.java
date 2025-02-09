@@ -33,6 +33,8 @@ import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
 import kotlinx.coroutines.future.FutureKt;
+import kotlin.coroutines.intrinsics.IntrinsicsKt;
+import kotlin.coroutines.suspendCoroutine;
 
 import android.view.Window;
 import android.view.WindowManager;
@@ -79,18 +81,34 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    CoroutineScope scope = CoroutineScope(Dispatchers.getMain() + EmptyCoroutineContext.INSTANCE);
+                    CoroutineScope scope = new CoroutineScope(Dispatchers.getMain().plus(EmptyCoroutineContext.INSTANCE));
 
                     CompletableFuture<Object> future = FutureKt.asCompletableFuture(
                             scope.async(Dispatchers.getMain(), CoroutineStart.DEFAULT, () -> {
-                                try {
-                                    account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE);
-                                    return null;
-                                } catch (Exception e) {
-                                    Log.e("OAuth", "OAuth Exception", e);
-                                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                    throw e; // Very important: Re-throw to propagate to exceptionally
-                                }
+                                return suspendCoroutine((Continuation<Unit> continuation) -> {
+                                    try {
+                                        account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE, new Continuation<Unit>() {
+                                            @Override
+                                            public CoroutineContext getContext() {
+                                                return EmptyCoroutineContext.INSTANCE;
+                                            }
+
+                                            @Override
+                                            public void resumeWith(Object o) {
+                                                if (o instanceof Result.Failure) {
+                                                    Log.e("OAuth", "OAuth Exception", ((Result.Failure) o).exception);
+                                                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                                } else {
+                                                    continuation.resume(Unit.INSTANCE);
+                                                }
+                                            }
+                                        });
+                                    } catch (Exception e) {
+                                        Log.e("OAuth", "OAuth Exception", e);
+                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                        continuation.resume(Unit.INSTANCE); // Resume to avoid blocking
+                                    }
+                                });
                             })
                     );
 
@@ -111,16 +129,37 @@ public class MainActivity extends AppCompatActivity {
         public void checkAuthState() {
             executorService.execute(() -> {
                 try {
-                    User user = account.get(User.class).execute();
+                    User user = suspendCoroutine((Continuation<User> continuation) -> {
+                        try {
+                            account.get(User.class, new Continuation<User>() {
+                                @Override
+                                public CoroutineContext getContext() {
+                                    return EmptyCoroutineContext.INSTANCE;
+                                }
+
+                                @Override
+                                public void resumeWith(Object o) {
+                                    if (o instanceof Result.Failure) {
+                                        Log.e("Auth", "Appwrite 로그인 상태 확인 실패", ((Result.Failure) o).exception);
+                                        continuation.resume(null);
+                                    } else {
+                                        continuation.resume((User) ((Result.Success) o).data);
+                                    }
+                                }
+                            });
+                        } catch (AppwriteException e) {
+                            Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
+                            continuation.resume(null);
+                        }
+                    });
+
                     String email = user.getEmail();
 
                     checkMembership(email, isMember -> {
                         String script = "handleAuthResult(true, " + isMember + ");";
                         runOnUiThread(() -> webView.evaluateJavascript(script, null));
                     });
-                } catch (AppwriteException e) {
-                    Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
-                    runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
+
                 } catch (Exception e) {
                     Log.e("Auth", "로그인 상태 확인 실패", e);
                     runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
@@ -132,12 +171,33 @@ public class MainActivity extends AppCompatActivity {
         public void logout() {
             executorService.execute(() -> {
                 try {
-                    account.deleteSession("current", Object.class).execute();
+                    suspendCoroutine((Continuation<Object> continuation) -> {
+                        try {
+                            account.deleteSession("current", Object.class, new Continuation<Object>() {
+                                @Override
+                                public CoroutineContext getContext() {
+                                    return EmptyCoroutineContext.INSTANCE;
+                                }
+
+                                @Override
+                                public void resumeWith(Object o) {
+                                    if (o instanceof Result.Failure) {
+                                        Log.e("Logout", "로그아웃 실패", ((Result.Failure) o).exception);
+                                    }
+                                    continuation.resume(null);
+                                }
+                            });
+                        } catch (AppwriteException e) {
+                            Log.e("Logout", "로그아웃 실패", e);
+                            continuation.resume(null);
+                        }
+                    });
+
                     runOnUiThread(() -> {
                         Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
                         webView.evaluateJavascript("handleAuthResult(false, false);", null);
                     });
-                } catch (AppwriteException e) {
+                } catch (Exception e) {
                     Log.e("Logout", "로그아웃 실패", e);
                 }
             });
@@ -149,12 +209,29 @@ public class MainActivity extends AppCompatActivity {
 
         executorService.execute(() -> {
             try {
-                DocumentList<Map<String, Object>> response = database.listDocuments(
-                        DATABASE_ID,
-                        COLLECTION_ID,
-                        queries,
-                        Map.class
-                ).execute();
+                DocumentList<Map<String, Object>> response = suspendCoroutine(continuation -> {
+                    try {
+                        database.listDocuments(DATABASE_ID, COLLECTION_ID, queries, Map.class, new Continuation<DocumentList<Map<String, Object>>>() {
+                            @Override
+                            public CoroutineContext getContext() {
+                                return EmptyCoroutineContext.INSTANCE;
+                            }
+
+                            @Override
+                            public void resumeWith(Object o) {
+                                if (o instanceof Result.Failure) {
+                                    Log.e("Membership", "회원 상태 확인 실패", ((Result.Failure) o).exception);
+                                    continuation.resume(null);
+                                } else {
+                                    continuation.resume((DocumentList<Map<String, Object>>) ((Result.Success) o).data);
+                                }
+                            }
+                        });
+                    } catch (AppwriteException e) {
+                        Log.e("Membership", "회원 상태 확인 실패", e);
+                        continuation.resume(null);
+                    }
+                });
 
                 boolean isActive = false;
 
@@ -172,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
 
                 boolean finalIsActive = isActive;
                 runOnUiThread(() -> callback.onResult(finalIsActive));
+
             } catch (AppwriteException e) {
-                Log.e("Membership", "회원 상태 확인 실패", e);
                 runOnUiThread(() -> callback.onResult(false));
             }
         });
