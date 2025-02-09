@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace 'me.moontree.treekiosk.v3'
     compileSdkVersion 34 // Or any version you'd like to use (e.g., 33, 32, etc.)
     
     defaultConfig {
