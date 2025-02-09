@@ -57,10 +57,11 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html");
 
-        client = new Client(this);
-        client.setEndpoint("https://cloud.appwrite.io/v1");
-        client.setProject("treekiosk");
+        client = new Client(MainActivity.this)
+                    .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite 엔드포인트
+                    .setProject("treekiosk"); // 프로젝트 ID
 
+        
         account = new Account(client);
         database = new Databases(client);
     }
