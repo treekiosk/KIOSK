@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         // Appwrite 클라이언트 설정 - Corrected
         client = new Client(MainActivity.this)
                 .setEndpoint("https://cloud.appwrite.io/v1")
-                .setProject("treekiosk")
+                .setProject("treekiosk");
 
         account = new Account(client);
         database = new Databases(client);
