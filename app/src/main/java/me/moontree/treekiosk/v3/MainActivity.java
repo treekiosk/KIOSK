@@ -79,9 +79,8 @@ public void loginWithOAuth() {
         try {
             Intent intent = account.createOAuth2Session(
                     MainActivity.this, // Your Activity context
-                    OAuthProvider.google,  // Correct way to specify Google
-                    null,                  // Optional success URL
-                    null,                  // Optional failure URL
+                    OAuthProvider.GOOGLE,  // Correct way to specify Google
+                                // Optional failure URL
                     new Continuation<String>() { // Continuation for the result
                         @Override
                         public void resumeWith(Object result) {
