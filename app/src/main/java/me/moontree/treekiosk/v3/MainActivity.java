@@ -1,7 +1,6 @@
 package me.moontree.treekiosk.v3;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -14,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,10 +27,12 @@ import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import io.appwrite.enums.OAuthProvider;
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
-import kotlinx.coroutines.launch;
+import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.CoroutineStart;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.future.FutureKt;
 
 import android.view.Window;
 import android.view.WindowManager;
@@ -78,17 +80,26 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 try {
                     CoroutineScope scope = CoroutineScope(Dispatchers.getMain() + EmptyCoroutineContext.INSTANCE);
-                    scope.launch {
-                        try {
-                            account.createOAuth2Session(
-                                    MainActivity.this,
-                                    OAuthProvider.GOOGLE
-                            );
-                        } catch (Exception e) {
-                            Log.e("OAuth", "OAuth Exception", e);
-                            webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                        }
-                    }
+
+                    CompletableFuture<Object> future = FutureKt.asCompletableFuture(
+                            scope.async(Dispatchers.getMain(), CoroutineStart.DEFAULT, () -> {
+                                try {
+                                    account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE);
+                                    return null;
+                                } catch (Exception e) {
+                                    Log.e("OAuth", "OAuth Exception", e);
+                                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                    throw e; // Very important: Re-throw to propagate to exceptionally
+                                }
+                            })
+                    );
+
+                    future.exceptionally(throwable -> {
+                        Log.e("OAuth", "CompletableFuture Exception", throwable);
+                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                        return null;
+                    });
+
                 } catch (Exception e) {
                     Log.e("OAuth", "OAuth Exception", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
