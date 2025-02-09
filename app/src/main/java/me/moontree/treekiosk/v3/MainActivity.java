@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +24,6 @@ import io.appwrite.Query;
 import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
-import io.appwrite.oauth.OAuthProvider;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import kotlin.coroutines.Continuation;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Client client;
     private Account account;
     private Databases database;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3); // Async Task Executor
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -42,53 +43,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // WebView 설정
         webView = findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
 
-        // JavaScript와 연결될 인터페이스 추가
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
-
-        // WebView에 HTML 파일 로드
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 초기화
-        client = new Client(this)
-                .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite 엔드포인트
-                .setProject("treekiosk"); // 프로젝트 ID
+        client = new Client(this);
+        client.setEndpoint("https://cloud.appwrite.io/v1");
+        client.setProject("treekiosk");
 
         account = new Account(client);
         database = new Databases(client);
     }
 
-    // Android와 JavaScript 연결을 위한 인터페이스 클래스
     private class AndroidInterface {
         @JavascriptInterface
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    OAuthProvider provider = OAuthProvider.Companion.google();
                     Intent intent = account.createOAuth2Session(
                         MainActivity.this,
-                        provider,
-                        Collections.emptyList(), // 필요한 경우 OAuth 스코프 추가 가능
-                        new Continuation<Unit>() {
-                            @NonNull
-                            @Override
-                            public CoroutineContext getContext() {
-                                return EmptyCoroutineContext.INSTANCE;
-                            }
-
-                            @Override
-                            public void resumeWith(@NonNull Object result) {
-                                Log.d("OAuth", "OAuth 로그인 성공");
-                                webView.evaluateJavascript("handleAuthResult(true, true);", null);
-                            }
-                        }
+                       "google"       
                     );
-
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
@@ -101,12 +80,23 @@ public class MainActivity extends AppCompatActivity {
         public void checkAuthState() {
             executorService.execute(() -> {
                 try {
-                    User user = account.get();
-                    String email = user.getEmail();
-                    boolean isMember = checkMembership(email);
+                    account.get(new Continuation<User>() {
+                        @Override
+                        public void resumeWith(Object result) {
+                            if (result instanceof User) {
+                                User user = (User) result;
+                                String email = user.getEmail();
+                                boolean isMember = checkMembership(email);
+                                String script = "handleAuthResult(true, " + isMember + ");";
+                                runOnUiThread(() -> webView.evaluateJavascript(script, null));
+                            }
+                        }
 
-                    String script = "handleAuthResult(true, " + isMember + ");";
-                    runOnUiThread(() -> webView.evaluateJavascript(script, null));
+                        @Override
+                        public CoroutineContext getContext() {
+                            return EmptyCoroutineContext.INSTANCE;
+                        }
+                    });
                 } catch (Exception e) {
                     Log.e("Auth", "로그인 상태 확인 실패", e);
                     runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
@@ -116,30 +106,49 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void logout() {
-            executorService.execute(() -> {
-                try {
-                    account.deleteSession("current");
+            account.deleteSession("current", new Continuation<Object>() {
+                @Override
+                public void resumeWith(Object result) {
                     runOnUiThread(() -> {
                         Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
                         webView.evaluateJavascript("handleAuthResult(false, false);", null);
                     });
-                } catch (Exception e) {
-                    Log.e("Auth", "로그아웃 실패", e);
+                }
+
+                @Override
+                public CoroutineContext getContext() {
+                    return EmptyCoroutineContext.INSTANCE;
                 }
             });
         }
 
         private boolean checkMembership(String email) {
             try {
-                DocumentList response = database.listDocuments(
-                        "tree-kiosk", // 데이터베이스 ID
-                        "owner",      // 컬렉션 ID
-                        new String[]{Query.equal("email", email)} // 이메일이 일치하는 문서 찾기
-                );
+                List<String> queries = Collections.singletonList(Query.equal("email", email));
 
-                if (response.getTotal() > 0) {
-                    return response.getDocuments().get(0).getBoolean("active", false);
-                }
+                database.listDocuments(
+                    "tree-kiosk", // 데이터베이스 ID
+                    "owner",      // 컬렉션 ID
+                    queries,
+                    new Continuation<DocumentList<Map<String, Object>>>() {
+                        @Override
+                        public void resumeWith(Object result) {
+                            if (result instanceof DocumentList) {
+                                DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
+                                if (response.getTotal() > 0) {
+                                    Map<String, Object> firstDocument = response.getDocuments().get(0);
+                                    boolean isActive = (boolean) firstDocument.getOrDefault("active", false);
+                                    runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(true, " + isActive + ");", null));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public CoroutineContext getContext() {
+                            return EmptyCoroutineContext.INSTANCE;
+                        }
+                    }
+                );
             } catch (Exception e) {
                 Log.e("Database", "회원 조회 실패", e);
             }
