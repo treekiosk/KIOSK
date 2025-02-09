@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private Databases database;
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
+    private static final String DATABASE_ID = "tree-kiosk";
+    private static final String COLLECTION_ID = "owner";
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         client = new Client(MainActivity.this)
                 .setEndpoint("https://cloud.appwrite.io/v1")
                 .setProject("treekiosk")
-                .setSelfSigned(true);
 
         account = new Account(client);
         database = new Databases(client);
@@ -113,9 +115,12 @@ public class MainActivity extends AppCompatActivity {
                                 User user = (User) result;
                                 String email = user.getEmail();
 
-                                checkMembership(email, isMember -> {
-                                    String script = "handleAuthResult(true, " + isMember + ");";
-                                    runOnUiThread(() -> webView.evaluateJavascript(script, null));
+                                checkMembership(email, new MembershipCallback() {
+                                    @Override
+                                    public void onResult(boolean isMember) {
+                                        String script = "handleAuthResult(true, " + isMember + ");";
+                                        runOnUiThread(() -> webView.evaluateJavascript(script, null));
+                                    }
                                 });
                             } else {
                                 runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
@@ -127,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
                             return EmptyCoroutineContext.INSTANCE;
                         }
                     });
+                } catch (AppwriteException e) {
+                    Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
+                    runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
                 } catch (Exception e) {
                     Log.e("Auth", "로그인 상태 확인 실패", e);
                     runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
@@ -157,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
         List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
         database.listDocuments(
-                "tree-kiosk", // 데이터베이스 ID
-                "owner", // 컬렉션 ID
+                DATABASE_ID,
+                COLLECTION_ID,
                 queries,
                 new Continuation<DocumentList<Map<String, Object>>>() {
                     @Override
@@ -169,7 +177,12 @@ public class MainActivity extends AppCompatActivity {
                             if (!response.getDocuments().isEmpty()) {
                                 Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
                                 Map<String, Object> data = firstDocument.getData();
-                                isActive = (Boolean) data.getOrDefault("active", false);
+                                Object activeValue = data.get("active");
+                                if (activeValue instanceof Boolean) {
+                                    isActive = (Boolean) activeValue;
+                                } else {
+                                    Log.w("Membership", "Unexpected value for 'active' field: " + activeValue);
+                                }
                             }
                         }
                         boolean finalIsActive = isActive;
