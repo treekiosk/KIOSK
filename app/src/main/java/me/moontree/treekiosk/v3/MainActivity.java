@@ -2,280 +2,69 @@ package me.moontree.treekiosk.v3;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import io.appwrite.Client;
-import io.appwrite.extensions.ClientExtensionsKt;
-import io.appwrite.Query;
-import io.appwrite.exceptions.AppwriteException;
-import io.appwrite.models.Document;
-import io.appwrite.models.DocumentList;
-import io.appwrite.models.User;
 import io.appwrite.services.Account;
-import io.appwrite.services.Databases;
-import io.appwrite.enums.OAuthProvider;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.CoroutineStart;
-import kotlinx.coroutines.Dispatchers;
-import kotlinx.coroutines.future.FutureKt;
-import kotlin.coroutines.intrinsics.IntrinsicsKt;
-import kotlin.coroutines.suspendCoroutine;
-import kotlin.jvm.functions.Function1;
-
-import android.view.Window;
-import android.view.WindowManager;
+import io.appwrite.exceptions.AppwriteException;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private Client client;
     private Account account;
-    private Databases database;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
-
-    private static final String DATABASE_ID = "tree-kiosk";
-    private static final String COLLECTION_ID = "owner";
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        webView = findViewById(R.id.webview);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
+        webView = findViewById(R.id.webView);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
 
-        webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
-        webView.loadUrl("file:///android_asset/index.html");
-
-        client = ClientExtensionsKt.Client(
-                "https://cloud.appwrite.io/v1",
-                "tree-kiosk",
-                true
-        );
+        // Appwrite 클라이언트 설정
+        client = new Client(this)
+            .setEndpoint("https://cloud.appwrite.io/v1")  // Appwrite 엔드포인트
+            .setProject("treekiosk");  // 프로젝트 ID
 
         account = new Account(client);
-        database = new Databases(client);
+
+        // WebView에서 Java 메서드를 호출할 수 있도록 JavaScript 인터페이스 추가
+        webView.addJavascriptInterface(new WebAppInterface(), "Android");
+
+        // HTML 파일 로드 (assets 폴더에 index.html이 있어야 함)
+        webView.loadUrl("file:///android_asset/index.html");
     }
 
-    private class AndroidInterface {
+    // WebView에서 호출할 JavaScript 인터페이스
+    public class WebAppInterface {
+
         @JavascriptInterface
-        public void loginWithOAuth() {
+        public void loginWithGoogle() {
             runOnUiThread(() -> {
                 try {
-                    CoroutineScope scope = new CoroutineScope(Dispatchers.getMain().plus(EmptyCoroutineContext.INSTANCE));
+                    String successRedirect = "";  // 성공 시 리디렉션 URL
+                    String failureRedirect = "";  // 실패 시 리디렉션 URL
 
-                    CompletableFuture<Object> future = FutureKt.asCompletableFuture(
-                            scope.async(Dispatchers.getMain(), CoroutineStart.DEFAULT, () -> {
-                                return suspendCoroutine(new Function1<Continuation<Unit>, Object>() {
-                                    @Override
-                                    public Object invoke(Continuation<Unit> continuation) {
-                                        try {
-                                            account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE, new Continuation<Unit>() {
-                                                @Override
-                                                public CoroutineContext getContext() {
-                                                    return EmptyCoroutineContext.INSTANCE;
-                                                }
-
-                                                @Override
-                                                public void resumeWith(Object o) {
-                                                    if (o instanceof Throwable) {
-                                                        Log.e("OAuth", "OAuth Exception", ((Throwable) o).getCause());
-                                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                                    } else {
-                                                        continuation.resume(Unit.INSTANCE);
-                                                    }
-                                                }
-                                            });
-                                        } catch (Exception e) {
-                                            Log.e("OAuth", "OAuth Exception", e);
-                                            webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                            continuation.resume(Unit.INSTANCE); // Resume to avoid blocking
-                                        }
-                                        return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
-                                    }
-                                });
-                            })
+                    // Google OAuth2 로그인 세션 생성
+                    account.createOAuth2Session(
+                        "google",  // OAuth 공급자
+                        successRedirect,
+                        failureRedirect
                     );
 
-                    future.exceptionally(throwable -> {
-                        Log.e("OAuth", "CompletableFuture Exception", throwable);
-                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                        return null;
-                    });
-
-                } catch (Exception e) {
-                    Log.e("OAuth", "OAuth Exception", e);
-                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                } catch (AppwriteException e) {
+                    e.printStackTrace();
                 }
             });
         }
-
-        @JavascriptInterface
-        public void checkAuthState() {
-            executorService.execute(() -> {
-                try {
-                    User user = suspendCoroutine(new Function1<Continuation<User>, Object>() {
-                        @Override
-                        public Object invoke(Continuation<User> continuation) {
-                            try {
-                                account.get(User.class, new Continuation<User>() {
-                                    @Override
-                                    public CoroutineContext getContext() {
-                                        return EmptyCoroutineContext.INSTANCE;
-                                    }
-
-                                    @Override
-                                    public void resumeWith(Object o) {
-                                        if (o instanceof Throwable) {
-                                            Log.e("Auth", "Appwrite 로그인 상태 확인 실패", (Throwable) o);
-                                            continuation.resume(null);
-                                        } else {
-                                            continuation.resume((User) o);
-                                        }
-                                    }
-                                });
-                            } catch (AppwriteException e) {
-                                Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
-                                continuation.resume(null);
-                            }
-                            return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
-                        }
-                    });
-
-                    String email = user.getEmail();
-
-                    checkMembership(email, isMember -> {
-                        String script = "handleAuthResult(true, " + isMember + ");";
-                        runOnUiThread(() -> webView.evaluateJavascript(script, null));
-                    });
-
-                } catch (Exception e) {
-                    Log.e("Auth", "로그인 상태 확인 실패", e);
-                    runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
-                }
-            });
-        }
-
-        @JavascriptInterface
-        public void logout() {
-            executorService.execute(() -> {
-                try {
-                    suspendCoroutine(new Function1<Continuation<Object>, Object>() {
-                        @Override
-                        public Object invoke(Continuation<Object> continuation) {
-                            try {
-                                account.deleteSession("current", Object.class, new Continuation<Object>() {
-                                    @Override
-                                    public CoroutineContext getContext() {
-                                        return EmptyCoroutineContext.INSTANCE;
-                                    }
-
-                                    @Override
-                                    public void resumeWith(Object o) {
-                                        if (o instanceof Throwable) {
-                                            Log.e("Logout", "로그아웃 실패", (Throwable) o);
-                                        }
-                                        continuation.resume(null);
-                                    }
-                                });
-                            } catch (AppwriteException e) {
-                                Log.e("Logout", "로그아웃 실패", e);
-                                continuation.resume(null);
-                            }
-                            return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
-                        }
-                    });
-
-                    runOnUiThread(() -> {
-                        Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
-                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                    });
-                } catch (Exception e) {
-                    Log.e("Logout", "로그아웃 실패", e);
-                }
-            });
-        }
-    }
-private void checkMembership(String email, MembershipCallback callback) {
-        List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
-
-        executorService.execute(() -> {
-            try {
-                DocumentList<Map<String, Object>> response = suspendCoroutine(new Function1<Continuation<DocumentList<Map<String, Object>>>, Object>() {
-                    @Override
-                    public Object invoke(Continuation<DocumentList<Map<String, Object>>> continuation) {
-                        try {
-                            database.listDocuments(DATABASE_ID, COLLECTION_ID, queries, Map.class, new Continuation<DocumentList<Map<String, Object>>>() {
-                                @Override
-                                public CoroutineContext getContext() {
-                                    return EmptyCoroutineContext.INSTANCE;
-                                }
-
-                                @Override
-                                public void resumeWith(Object o) {
-                                    if (o instanceof Throwable) {
-                                        Log.e("Membership", "회원 상태 확인 실패", (Throwable) o);
-                                        continuation.resume(null);
-                                    } else {
-                                        continuation.resume((DocumentList<Map<String, Object>>) o);
-                                    }
-                                }
-                            });
-                        } catch (AppwriteException e) {
-                            Log.e("Membership", "회원 상태 확인 실패", e);
-                            continuation.resume(null);
-                        }
-                        return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
-                    }
-                });
-
-                boolean isActive = false;
-
-                if (!response.getDocuments().isEmpty()) {
-                    Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
-                    Map<String, Object> data = firstDocument.getData();
-                    Object activeValue = data.get("active");
-
-                    if (activeValue instanceof Boolean) {
-                        isActive = (Boolean) activeValue;
-                    } else {
-                        Log.w("Membership", "Unexpected value for 'active' field: " + activeValue);
-                    }
-                }
-
-                boolean finalIsActive = isActive;
-                runOnUiThread(() -> callback.onResult(finalIsActive));
-
-            } catch (AppwriteException e) {
-                runOnUiThread(() -> callback.onResult(false));
-            }
-        });
-    }
-
-    interface MembershipCallback {
-        void onResult(boolean isActive);
     }
 }
-    
