@@ -61,10 +61,11 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl("file:///android_asset/index.html"); // Make sure index.html is in assets
 
         // Appwrite 클라이언트 설정
-client = new Client(MainActivity.this);
-client.setEndpoint("https://cloud.appwrite.io/v1");
-client.setProject("tree-kiosk");
-client.setSelfSigned(true); // 개발 환경에서만 사용
+         client = new Client.Builder()
+        .setEndpoint("https://cloud.appwrite.io/v1")
+        .setProject("tree-kiosk")
+        .setSelfSigned(true) // 개발 환경에서만 사용
+        .build();
         
         account = new Account(client);
         database = new Databases(client);
