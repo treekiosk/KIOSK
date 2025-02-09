@@ -9,7 +9,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Collections;
@@ -21,13 +20,11 @@ import java.util.concurrent.Executors;
 import io.appwrite.Client;
 import io.appwrite.ID;
 import io.appwrite.Query;
-import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.Document;
 import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
-import io.appwrite.oauth.OAuthProvider;
 
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
@@ -59,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 설정 (setSelfSigned 추가)
+        // Appwrite 클라이언트 설정
         client = new Client(MainActivity.this)
                 .setEndpoint("https://cloud.appwrite.io/v1")
-                .setProject("treekiosk")
-                .setSelfSigned(true);
+                .setProject("treekiosk");
+        client.setSelfSigned(true);
 
         account = new Account(client);
         database = new Databases(client);
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Intent intent = account.createOAuth2Session(
                         MainActivity.this,
-                        OAuthProvider.GOOGLE
+                        "google"
                     );
                     startActivity(intent);
                 } catch (Exception e) {
@@ -137,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 비동기 방식으로 멤버십 확인
     private void checkMembership(String email, MembershipCallback callback) {
-        List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
+        List<String> queries = Collections.singletonList(Query.equal("email", email));
 
         database.listDocuments(
             "tree-kiosk", // 데이터베이스 ID
@@ -151,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
                         if (!response.getDocuments().isEmpty()) {
                             Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
-                            Map<String, Object> data = firstDocument.getData();  // getData() 사용
+                            Map<String, Object> data = firstDocument.getData();
                             isActive = (Boolean) data.getOrDefault("active", false);
                         }
                     }
