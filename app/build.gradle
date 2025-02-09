@@ -37,5 +37,4 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     implementation platform("org.jetbrains.kotlin:kotlin-bom:1.9.22")
-    implementation("com.squareup.okio:okio:3.6.0") // Ensure Okio version matches
 }
