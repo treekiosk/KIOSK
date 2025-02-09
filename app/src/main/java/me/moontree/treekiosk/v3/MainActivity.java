@@ -27,6 +27,8 @@ import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import io.appwrite.enums.OAuthProvider;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import kotlinx.coroutines.CoroutineScope;
@@ -35,6 +37,7 @@ import kotlinx.coroutines.Dispatchers;
 import kotlinx.coroutines.future.FutureKt;
 import kotlin.coroutines.intrinsics.IntrinsicsKt;
 import kotlin.coroutines.suspendCoroutine;
+import kotlin.jvm.functions.Function1;
 
 import android.view.Window;
 import android.view.WindowManager;
@@ -85,28 +88,32 @@ public class MainActivity extends AppCompatActivity {
 
                     CompletableFuture<Object> future = FutureKt.asCompletableFuture(
                             scope.async(Dispatchers.getMain(), CoroutineStart.DEFAULT, () -> {
-                                return suspendCoroutine((Continuation<Unit> continuation) -> {
-                                    try {
-                                        account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE, new Continuation<Unit>() {
-                                            @Override
-                                            public CoroutineContext getContext() {
-                                                return EmptyCoroutineContext.INSTANCE;
-                                            }
-
-                                            @Override
-                                            public void resumeWith(Object o) {
-                                                if (o instanceof Result.Failure) {
-                                                    Log.e("OAuth", "OAuth Exception", ((Result.Failure) o).exception);
-                                                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                                } else {
-                                                    continuation.resume(Unit.INSTANCE);
+                                return suspendCoroutine(new Function1<Continuation<Unit>, Object>() {
+                                    @Override
+                                    public Object invoke(Continuation<Unit> continuation) {
+                                        try {
+                                            account.createOAuth2Session(MainActivity.this, OAuthProvider.GOOGLE, new Continuation<Unit>() {
+                                                @Override
+                                                public CoroutineContext getContext() {
+                                                    return EmptyCoroutineContext.INSTANCE;
                                                 }
-                                            }
-                                        });
-                                    } catch (Exception e) {
-                                        Log.e("OAuth", "OAuth Exception", e);
-                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                        continuation.resume(Unit.INSTANCE); // Resume to avoid blocking
+
+                                                @Override
+                                                public void resumeWith(Object o) {
+                                                    if (o instanceof Throwable) {
+                                                        Log.e("OAuth", "OAuth Exception", ((Throwable) o).getCause());
+                                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                                    } else {
+                                                        continuation.resume(Unit.INSTANCE);
+                                                    }
+                                                }
+                                            });
+                                        } catch (Exception e) {
+                                            Log.e("OAuth", "OAuth Exception", e);
+                                            webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                            continuation.resume(Unit.INSTANCE); // Resume to avoid blocking
+                                        }
+                                        return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
                                     }
                                 });
                             })
@@ -129,27 +136,31 @@ public class MainActivity extends AppCompatActivity {
         public void checkAuthState() {
             executorService.execute(() -> {
                 try {
-                    User user = suspendCoroutine((Continuation<User> continuation) -> {
-                        try {
-                            account.get(User.class, new Continuation<User>() {
-                                @Override
-                                public CoroutineContext getContext() {
-                                    return EmptyCoroutineContext.INSTANCE;
-                                }
-
-                                @Override
-                                public void resumeWith(Object o) {
-                                    if (o instanceof Result.Failure) {
-                                        Log.e("Auth", "Appwrite 로그인 상태 확인 실패", ((Result.Failure) o).exception);
-                                        continuation.resume(null);
-                                    } else {
-                                        continuation.resume((User) ((Result.Success) o).data);
+                    User user = suspendCoroutine(new Function1<Continuation<User>, Object>() {
+                        @Override
+                        public Object invoke(Continuation<User> continuation) {
+                            try {
+                                account.get(User.class, new Continuation<User>() {
+                                    @Override
+                                    public CoroutineContext getContext() {
+                                        return EmptyCoroutineContext.INSTANCE;
                                     }
-                                }
-                            });
-                        } catch (AppwriteException e) {
-                            Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
-                            continuation.resume(null);
+
+                                    @Override
+                                    public void resumeWith(Object o) {
+                                        if (o instanceof Throwable) {
+                                            Log.e("Auth", "Appwrite 로그인 상태 확인 실패", (Throwable) o);
+                                            continuation.resume(null);
+                                        } else {
+                                            continuation.resume((User) o);
+                                        }
+                                    }
+                                });
+                            } catch (AppwriteException e) {
+                                Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
+                                continuation.resume(null);
+                            }
+                            return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
                         }
                     });
 
@@ -171,25 +182,29 @@ public class MainActivity extends AppCompatActivity {
         public void logout() {
             executorService.execute(() -> {
                 try {
-                    suspendCoroutine((Continuation<Object> continuation) -> {
-                        try {
-                            account.deleteSession("current", Object.class, new Continuation<Object>() {
-                                @Override
-                                public CoroutineContext getContext() {
-                                    return EmptyCoroutineContext.INSTANCE;
-                                }
-
-                                @Override
-                                public void resumeWith(Object o) {
-                                    if (o instanceof Result.Failure) {
-                                        Log.e("Logout", "로그아웃 실패", ((Result.Failure) o).exception);
+                    suspendCoroutine(new Function1<Continuation<Object>, Object>() {
+                        @Override
+                        public Object invoke(Continuation<Object> continuation) {
+                            try {
+                                account.deleteSession("current", Object.class, new Continuation<Object>() {
+                                    @Override
+                                    public CoroutineContext getContext() {
+                                        return EmptyCoroutineContext.INSTANCE;
                                     }
-                                    continuation.resume(null);
-                                }
-                            });
-                        } catch (AppwriteException e) {
-                            Log.e("Logout", "로그아웃 실패", e);
-                            continuation.resume(null);
+
+                                    @Override
+                                    public void resumeWith(Object o) {
+                                        if (o instanceof Throwable) {
+                                            Log.e("Logout", "로그아웃 실패", (Throwable) o);
+                                        }
+                                        continuation.resume(null);
+                                    }
+                                });
+                            } catch (AppwriteException e) {
+                                Log.e("Logout", "로그아웃 실패", e);
+                                continuation.resume(null);
+                            }
+                            return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
                         }
                     });
 
@@ -203,33 +218,36 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
-
-    private void checkMembership(String email, MembershipCallback callback) {
+private void checkMembership(String email, MembershipCallback callback) {
         List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
         executorService.execute(() -> {
             try {
-                DocumentList<Map<String, Object>> response = suspendCoroutine(continuation -> {
-                    try {
-                        database.listDocuments(DATABASE_ID, COLLECTION_ID, queries, Map.class, new Continuation<DocumentList<Map<String, Object>>>() {
-                            @Override
-                            public CoroutineContext getContext() {
-                                return EmptyCoroutineContext.INSTANCE;
-                            }
-
-                            @Override
-                            public void resumeWith(Object o) {
-                                if (o instanceof Result.Failure) {
-                                    Log.e("Membership", "회원 상태 확인 실패", ((Result.Failure) o).exception);
-                                    continuation.resume(null);
-                                } else {
-                                    continuation.resume((DocumentList<Map<String, Object>>) ((Result.Success) o).data);
+                DocumentList<Map<String, Object>> response = suspendCoroutine(new Function1<Continuation<DocumentList<Map<String, Object>>>, Object>() {
+                    @Override
+                    public Object invoke(Continuation<DocumentList<Map<String, Object>>> continuation) {
+                        try {
+                            database.listDocuments(DATABASE_ID, COLLECTION_ID, queries, Map.class, new Continuation<DocumentList<Map<String, Object>>>() {
+                                @Override
+                                public CoroutineContext getContext() {
+                                    return EmptyCoroutineContext.INSTANCE;
                                 }
-                            }
-                        });
-                    } catch (AppwriteException e) {
-                        Log.e("Membership", "회원 상태 확인 실패", e);
-                        continuation.resume(null);
+
+                                @Override
+                                public void resumeWith(Object o) {
+                                    if (o instanceof Throwable) {
+                                        Log.e("Membership", "회원 상태 확인 실패", (Throwable) o);
+                                        continuation.resume(null);
+                                    } else {
+                                        continuation.resume((DocumentList<Map<String, Object>>) o);
+                                    }
+                                }
+                            });
+                        } catch (AppwriteException e) {
+                            Log.e("Membership", "회원 상태 확인 실패", e);
+                            continuation.resume(null);
+                        }
+                        return IntrinsicsKt.getCOROUTINE_SUSPENDED(); // Important!
                     }
                 });
 
@@ -260,3 +278,4 @@ public class MainActivity extends AppCompatActivity {
         void onResult(boolean isActive);
     }
 }
+    
