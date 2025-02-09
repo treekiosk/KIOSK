@@ -25,6 +25,8 @@ import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import io.appwrite.exceptions.AppwriteException;
+import io.appwrite.coroutines.CoroutineCallback;
+import io.appwrite.enums.OAuthProvider;
 
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
@@ -70,40 +72,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class AndroidInterface {
-        @JavascriptInterface
-        public void loginWithOAuth() {
-            runOnUiThread(() -> {
-                try {
-                    Intent intent = account.createOAuth2Session(
-                            MainActivity.this,
-                            "google", // Provider ID as a String
-                            null, // success url
-                            null, // failure url
-                            new Continuation<String>() {
-                                @Override
-                                public void resumeWith(Object result) {
-                                    if (result instanceof String) {
-                                        Log.d("OAuth", "OAuth Success URL: " + result);
-                                    } else if (result instanceof Throwable) {
-                                        Throwable t = (Throwable) result;
-                                        Log.e("OAuth", "OAuth Error", t);
-                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                    }
-                                }
 
-                                @Override
-                                public CoroutineContext getContext() {
-                                    return EmptyCoroutineContext.INSTANCE;
-                                }
+@JavascriptInterface
+public void loginWithOAuth() {
+    runOnUiThread(() -> {
+        try {
+            Intent intent = account.createOAuth2Session(
+                    MainActivity.this, // Your Activity context
+                    OAuthProvider.google,  // Correct way to specify Google
+                    null,                  // Optional success URL
+                    null,                  // Optional failure URL
+                    new Continuation<String>() { // Continuation for the result
+                        @Override
+                        public void resumeWith(Object result) {
+                            if (result instanceof String) {
+                                String authUrl = (String) result; // This is the URL to open
+                                Log.d("OAuth", "Auth URL: " + authUrl);
+                                // You might not need to do anything here since startActivity(intent) will handle it.
+                            } else if (result instanceof Throwable) {
+                                Throwable t = (Throwable) result;
+                                Log.e("OAuth", "OAuth Error", t);
+                                webView.evaluateJavascript("handleAuthResult(false, false);", null);
                             }
-                    );
-                    startActivity(intent);
-                } catch (AppwriteException e) {
-                    Log.e("OAuth", "로그인 중 오류 발생", e);
-                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                }
-            });
+                        }
+
+                        @Override
+                        public CoroutineContext getContext() {
+                            return EmptyCoroutineContext.INSTANCE;
+                        }
+                    }
+            );
+            startActivity(intent); // Start the OAuth activity
+        } catch (AppwriteException e) {
+            Log.e("OAuth", "Appwrite Exception during OAuth", e);
+            webView.evaluateJavascript("handleAuthResult(false, false);", null);
         }
+    });
+}
 
         @JavascriptInterface
         public void checkAuthState() {
