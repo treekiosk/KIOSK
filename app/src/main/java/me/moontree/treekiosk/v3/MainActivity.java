@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 비동기 방식으로 멤버십 확인
     private void checkMembership(String email, MembershipCallback callback) {
-        List<String> queries = Collections.singletonList(Query.equal("email", email));
+        List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
         database.listDocuments(
             "tree-kiosk", // 데이터베이스 ID
