@@ -25,7 +25,6 @@ import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import io.appwrite.exceptions.AppwriteException;
-import io.appwrite.coroutines.CoroutineCallback;
 import io.appwrite.enums.OAuthProvider;
 
 import kotlin.coroutines.Continuation;
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String DATABASE_ID = "tree-kiosk";
     private static final String COLLECTION_ID = "owner";
+    private static final String REDIRECT_URL = "YOUR_REDIRECT_URL"; // **REPLACE THIS!**
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -59,13 +59,13 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
-        webView.loadUrl("file:///android_asset/index.html");
+        webView.loadUrl("file:///android_asset/index.html"); // Make sure index.html is in assets
 
-        // Appwrite 클라이언트 설정 - Corrected
+        // Appwrite 클라이언트 설정
         client = new Client(MainActivity.this)
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject("treekiosk")
-    .setSelfSigned(true); // 개발 환경에서만 사용
+                .setEndpoint("https://cloud.appwrite.io/v1")
+                .setProject("tree-kiosk")
+                .setSelfSigned(true); // 개발 환경에서만 사용
 
         account = new Account(client);
         database = new Databases(client);
@@ -73,41 +73,40 @@ public class MainActivity extends AppCompatActivity {
 
     private class AndroidInterface {
 
-@JavascriptInterface
-public void loginWithOAuth() {
-    runOnUiThread(() -> {
-        try {
-            Intent intent = account.createOAuth2Session(
-                    MainActivity.this, // Your Activity context
-                    OAuthProvider.GOOGLE,  // Correct way to specify Google
-                                // Optional failure URL
-                    new Continuation<String>() { // Continuation for the result
-                        @Override
-                        public void resumeWith(Object result) {
-                            if (result instanceof String) {
-                                String authUrl = (String) result; // This is the URL to open
-                                Log.d("OAuth", "Auth URL: " + authUrl);
-                                // You might not need to do anything here since startActivity(intent) will handle it.
-                            } else if (result instanceof Throwable) {
-                                Throwable t = (Throwable) result;
-                                Log.e("OAuth", "OAuth Error", t);
-                                webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                            }
-                        }
+        @JavascriptInterface
+        public void loginWithOAuth() {
+            runOnUiThread(() -> {
+                try {
+                    Intent intent = account.createOAuth2Session(
+                            MainActivity.this,
+                            OAuthProvider.GOOGLE,
+                            REDIRECT_URL, // Use the constant
+                            REDIRECT_URL, // Use the constant
+                            new Continuation<String>() {
+                                @Override
+                                public void resumeWith(Object result) {
+                                    if (result instanceof String) {
+                                        Log.d("OAuth", "OAuth started");
+                                    } else if (result instanceof Throwable) {
+                                        Throwable t = (Throwable) result;
+                                        Log.e("OAuth", "OAuth Error", t);
+                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                    }
+                                }
 
-                        @Override
-                        public CoroutineContext getContext() {
-                            return EmptyCoroutineContext.INSTANCE;
-                        }
-                    }
-            );
-            startActivity(intent); // Start the OAuth activity
-        } catch (AppwriteException e) {
-            Log.e("OAuth", "Appwrite Exception during OAuth", e);
-            webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                @Override
+                                public CoroutineContext getContext() {
+                                    return EmptyCoroutineContext.INSTANCE;
+                                }
+                            }
+                    );
+                    startActivity(intent);
+                } catch (AppwriteException e) {
+                    Log.e("OAuth", "Appwrite Exception during OAuth", e);
+                    webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                }
+            });
         }
-    });
-}
 
         @JavascriptInterface
         public void checkAuthState() {
