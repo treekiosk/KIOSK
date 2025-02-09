@@ -24,7 +24,6 @@ import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
-import io.appwrite.oauth.OAuthProvider; // Import OAuthProvider
 
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
@@ -58,9 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Appwrite 클라이언트 설정
         client = new Client(MainActivity.this);
-        client.setEndpoint("https://cloud.appwrite.io/v1"); // Explicit call
+        client.setEndpoint("https://cloud.appwrite.io/v1", true);
         client.setProject("treekiosk");
-        client.setSelfSigned(true);
 
         account = new Account(client);
         database = new Databases(client);
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Intent intent = account.createOAuth2Session(
                         MainActivity.this,
-                        OAuthProvider.GOOGLE, // Use OAuthProvider.GOOGLE
+                        "google", // Use OAuthProvider.GOOGLE
                         null, // success
                         null, // failure
                         null  // continuation
