@@ -30,7 +30,6 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import android.view.Window;
-import io.appwrite.oauth.OAuthProvider; // OAuthProvider 추가
 import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,15 +53,14 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-   
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html");
 
-        client = new Client(MainActivity.this)
-                    .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite 엔드포인트
-                    .setProject("treekiosk"); // 프로젝트 ID
+        // Appwrite 클라이언트 설정
+        client = new Client(MainActivity.this);
+        client.setEndpoint("https://cloud.appwrite.io/v1");
+        client.setProject("treekiosk");
 
-        
         account = new Account(client);
         database = new Databases(client);
     }
@@ -72,12 +70,8 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-              OAuthProvider provider = OAuthProvider.Companion.google();
-               Intent intent = account.createOAuth2Session(
-                 MainActivity.this, 
-                provider
-                );
-startActivity(intent);
+                    Intent intent = account.createOAuth2Session(MainActivity.this, "google");
+                    startActivity(intent);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
@@ -95,9 +89,11 @@ startActivity(intent);
                             if (result instanceof User) {
                                 User user = (User) result;
                                 String email = user.getEmail();
-                                boolean isMember = checkMembership(email);
-                                String script = "handleAuthResult(true, " + isMember + ");";
-                                runOnUiThread(() -> webView.evaluateJavascript(script, null));
+
+                                checkMembership(email, isMember -> {
+                                    String script = "handleAuthResult(true, " + isMember + ");";
+                                    runOnUiThread(() -> webView.evaluateJavascript(script, null));
+                                });
                             }
                         }
 
@@ -130,34 +126,40 @@ startActivity(intent);
                 }
             });
         }
+    }
 
-private boolean checkMembership(String email) {
-    List<Object> queries = Collections.singletonList(Query.equal("email", email));
+    // 비동기 방식으로 멤버십 확인
+    private void checkMembership(String email, MembershipCallback callback) {
+        List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
-    database.listDocuments(
-        "tree-kiosk", // 데이터베이스 ID
-        "owner", // 컬렉션 ID
-        queries,
-        new Continuation<DocumentList<Map<String, Object>>>() {
-            @Override
-            public void resumeWith(Object result) {
-                if (result instanceof DocumentList) {
-                    DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
-                    
-                    if (!response.getDocuments().isEmpty()) {
-                        Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
-                        boolean isActive = (Boolean) firstDocument.getData().getOrDefault("active", false);
-                        // isActive 값 반환
-                        return isActive;
+        database.listDocuments(
+            "tree-kiosk", // 데이터베이스 ID
+            "owner", // 컬렉션 ID
+            queries,
+            new Continuation<DocumentList<Map<String, Object>>>() {
+                @Override
+                public void resumeWith(Object result) {
+                    boolean isActive = false;
+                    if (result instanceof DocumentList) {
+                        DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
+                        if (!response.getDocuments().isEmpty()) {
+                            Map<String, Object> firstDocument = response.getDocuments().get(0);
+                            isActive = (Boolean) firstDocument.getOrDefault("active", false);
+                        }
                     }
+                    boolean finalIsActive = isActive;
+                    runOnUiThread(() -> callback.onResult(finalIsActive));
                 }
-                // 기본적으로 false 반환
-                return false;
-            }
-        }
-    );
-}
 
-            
+                @Override
+                public CoroutineContext getContext() {
+                    return EmptyCoroutineContext.INSTANCE;
+                }
+            }
+        );
+    }
+
+    interface MembershipCallback {
+        void onResult(boolean isActive);
     }
 }
