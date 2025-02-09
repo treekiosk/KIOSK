@@ -19,17 +19,14 @@ import java.util.concurrent.Executors;
 
 import io.appwrite.Client;
 import io.appwrite.Query;
+import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.Document;
 import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
-import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.enums.OAuthProvider;
 
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -42,11 +39,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String DATABASE_ID = "tree-kiosk";
     private static final String COLLECTION_ID = "owner";
-    private static final String REDIRECT_URL = "YOUR_REDIRECT_URL"; // **REPLACE THIS!**
+
+    
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 타이틀 바 숨기기 (setContentView 전에 호출)
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -54,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html"); // Make sure index.html is in assets
@@ -72,37 +71,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class AndroidInterface {
-
         @JavascriptInterface
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    Intent intent = account.createOAuth2Session(
+                    account.createOAuth2Session(
                             MainActivity.this,
-                            OAuthProvider.GOOGLE,
-                            REDIRECT_URL, // Use the constant
-                            REDIRECT_URL, // Use the constant
-                            new Continuation<String>() {
-                                @Override
-                                public void resumeWith(Object result) {
-                                    if (result instanceof String) {
-                                        Log.d("OAuth", "OAuth started");
-                                    } else if (result instanceof Throwable) {
-                                        Throwable t = (Throwable) result;
-                                        Log.e("OAuth", "OAuth Error", t);
-                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
-                                    }
-                                }
-
-                                @Override
-                                public CoroutineContext getContext() {
-                                    return EmptyCoroutineContext.INSTANCE;
-                                }
-                            }
+                            OAuthProvider.GOOGLE
                     );
-                    startActivity(intent);
-                } catch (AppwriteException e) {
-                    Log.e("OAuth", "Appwrite Exception during OAuth", e);
+                } catch (Exception e) {
+                    Log.e("OAuth", "OAuth Exception", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
                 }
             });
@@ -112,29 +90,12 @@ public class MainActivity extends AppCompatActivity {
         public void checkAuthState() {
             executorService.execute(() -> {
                 try {
-                    account.get(new Continuation<User>() {
-                        @Override
-                        public void resumeWith(Object result) {
-                            if (result instanceof User) {
-                                User user = (User) result;
-                                String email = user.getEmail();
+                    User user = account.get().execute();
+                    String email = user.getEmail();
 
-                                checkMembership(email, new MembershipCallback() {
-                                    @Override
-                                    public void onResult(boolean isMember) {
-                                        String script = "handleAuthResult(true, " + isMember + ");";
-                                        runOnUiThread(() -> webView.evaluateJavascript(script, null));
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
-                            }
-                        }
-
-                        @Override
-                        public CoroutineContext getContext() {
-                            return EmptyCoroutineContext.INSTANCE;
-                        }
+                    checkMembership(email, isMember -> {
+                        String script = "handleAuthResult(true, " + isMember + ");";
+                        runOnUiThread(() -> webView.evaluateJavascript(script, null));
                     });
                 } catch (AppwriteException e) {
                     Log.e("Auth", "Appwrite 로그인 상태 확인 실패", e);
@@ -148,18 +109,15 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void logout() {
-            account.deleteSession("current", new Continuation<Object>() {
-                @Override
-                public void resumeWith(Object result) {
+            executorService.execute(() -> {
+                try {
+                    account.deleteSession("current").execute();
                     runOnUiThread(() -> {
                         Toast.makeText(MainActivity.this, "로그아웃 성공", Toast.LENGTH_SHORT).show();
                         webView.evaluateJavascript("handleAuthResult(false, false);", null);
                     });
-                }
-
-                @Override
-                public CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
+                } catch (AppwriteException e) {
+                    Log.e("Logout", "로그아웃 실패", e);
                 }
             });
         }
@@ -168,37 +126,30 @@ public class MainActivity extends AppCompatActivity {
     private void checkMembership(String email, MembershipCallback callback) {
         List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
-        database.listDocuments(
-                DATABASE_ID,
-                COLLECTION_ID,
-                queries,
-                new Continuation<DocumentList<Map<String, Object>>>() {
-                    @Override
-                    public void resumeWith(Object result) {
-                        boolean isActive = false;
-                        if (result instanceof DocumentList) {
-                            DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
-                            if (!response.getDocuments().isEmpty()) {
-                                Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
-                                Map<String, Object> data = firstDocument.getData();
-                                Object activeValue = data.get("active");
-                                if (activeValue instanceof Boolean) {
-                                    isActive = (Boolean) activeValue;
-                                } else {
-                                    Log.w("Membership", "Unexpected value for 'active' field: " + activeValue);
-                                }
-                            }
-                        }
-                        boolean finalIsActive = isActive;
-                        runOnUiThread(() -> callback.onResult(finalIsActive));
-                    }
+        executorService.execute(() -> {
+            try {
+                DocumentList<Map<String, Object>> response = database.listDocuments(DATABASE_ID, COLLECTION_ID, queries).execute();
+                boolean isActive = false;
 
-                    @Override
-                    public CoroutineContext getContext() {
-                        return EmptyCoroutineContext.INSTANCE;
+                if (!response.getDocuments().isEmpty()) {
+                    Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
+                    Map<String, Object> data = firstDocument.getData();
+                    Object activeValue = data.get("active");
+
+                    if (activeValue instanceof Boolean) {
+                        isActive = (Boolean) activeValue;
+                    } else {
+                        Log.w("Membership", "Unexpected value for 'active' field: " + activeValue);
                     }
                 }
-        );
+
+                boolean finalIsActive = isActive;
+                runOnUiThread(() -> callback.onResult(finalIsActive));
+            } catch (AppwriteException e) {
+                Log.e("Membership", "회원 상태 확인 실패", e);
+                runOnUiThread(() -> callback.onResult(false));
+            }
+        });
     }
 
     interface MembershipCallback {
