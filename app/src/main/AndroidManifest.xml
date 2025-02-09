@@ -7,7 +7,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Treekiosk">
+        android:theme="@style/Theme.KIOSK">
 
         <!-- ✅ MainActivity에 android:exported 추가 -->
         <activity
