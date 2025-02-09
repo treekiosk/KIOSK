@@ -9,9 +9,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,8 +22,12 @@ import io.appwrite.Query;
 import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
+import io.appwrite.oauth.OAuthProvider;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -64,10 +69,27 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    // OAuth 로그인 시작
-                    Intent intent = account.createOAuth2Session(MainActivity.this, "google");
+                    OAuthProvider provider = OAuthProvider.Companion.google();
+                    Intent intent = account.createOAuth2Session(
+                        MainActivity.this,
+                        provider,
+                        Collections.emptyList(), // 필요한 경우 OAuth 스코프 추가 가능
+                        new Continuation<Unit>() {
+                            @NonNull
+                            @Override
+                            public CoroutineContext getContext() {
+                                return EmptyCoroutineContext.INSTANCE;
+                            }
+
+                            @Override
+                            public void resumeWith(@NonNull Object result) {
+                                Log.d("OAuth", "OAuth 로그인 성공");
+                                webView.evaluateJavascript("handleAuthResult(true, true);", null);
+                            }
+                        }
+                    );
+
                     startActivity(intent);
-                    webView.evaluateJavascript("handleAuthResult(true, true);", null);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
