@@ -30,6 +30,7 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import android.view.Window;
+import io.appwrite.oauth.OAuthProvider; // OAuthProvider 추가
 import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -71,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
         public void loginWithOAuth() {
             runOnUiThread(() -> {
                 try {
-                    Intent intent = account.createOAuth2Session(
-                        MainActivity.this,
-                       "google"       
-                    );
-                    startActivity(intent);
+              OAuthProvider provider = OAuthProvider.Companion.google();
+               Intent intent = account.createOAuth2Session(
+                 MainActivity.this, 
+                provider
+                );
+startActivity(intent);
                 } catch (Exception e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         private boolean checkMembership(String email) {
             try {
-                List<String> queries = Collections.singletonList(Query.equal("email", email));
+                List<Object> queries = Collections.singletonList(Query.equal("email", email));
 
                 database.listDocuments(
                     "tree-kiosk", // 데이터베이스 ID
