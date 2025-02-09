@@ -131,37 +131,33 @@ startActivity(intent);
             });
         }
 
-        private boolean checkMembership(String email) {
-            try {
-                List<Object> queries = Collections.singletonList(Query.equal("email", email));
+private boolean checkMembership(String email) {
+    List<Object> queries = Collections.singletonList(Query.equal("email", email));
 
-                database.listDocuments(
-                    "tree-kiosk", // 데이터베이스 ID
-                    "owner",      // 컬렉션 ID
-                    queries,
-                    new Continuation<DocumentList<Map<String, Object>>>() {
-                        @Override
-                        public void resumeWith(Object result) {
-                            if (result instanceof DocumentList) {
-                                DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
-                                if (response.getTotal() > 0) {
-                                    Map<String, Object> firstDocument = response.getDocuments().get(0);
-                                    boolean isActive = (boolean) firstDocument.getOrDefault("active", false);
-                                    runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(true, " + isActive + ");", null));
-                                }
-                            }
-                        }
-
-                        @Override
-                        public CoroutineContext getContext() {
-                            return EmptyCoroutineContext.INSTANCE;
-                        }
+    database.listDocuments(
+        "tree-kiosk", // 데이터베이스 ID
+        "owner", // 컬렉션 ID
+        queries,
+        new Continuation<DocumentList<Map<String, Object>>>() {
+            @Override
+            public void resumeWith(Object result) {
+                if (result instanceof DocumentList) {
+                    DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
+                    
+                    if (!response.getDocuments().isEmpty()) {
+                        Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
+                        boolean isActive = (Boolean) firstDocument.getData().getOrDefault("active", false);
+                        // isActive 값 반환
+                        return isActive;
                     }
-                );
-            } catch (Exception e) {
-                Log.e("Database", "회원 조회 실패", e);
+                }
+                // 기본적으로 false 반환
+                return false;
             }
-            return false;
         }
+    );
+}
+
+            
     }
 }
