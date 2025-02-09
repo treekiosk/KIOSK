@@ -24,6 +24,7 @@ import io.appwrite.models.DocumentList;
 import io.appwrite.models.User;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
+import io.appwrite.exceptions.AppwriteException;
 
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
@@ -55,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidInterface");
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Appwrite 클라이언트 설정
-        client = new Client(MainActivity.this);
-        client.setEndpoint("https://cloud.appwrite.io/v1", true);
-        client.setProject("treekiosk");
+        // Appwrite 클라이언트 설정 - Corrected
+        client = new Client(MainActivity.this)
+                .setEndpoint("https://cloud.appwrite.io/v1")
+                .setProject("treekiosk")
+                .setSelfSigned(true);
 
         account = new Account(client);
         database = new Databases(client);
@@ -70,14 +72,30 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 try {
                     Intent intent = account.createOAuth2Session(
-                        MainActivity.this,
-                        "google", // Use OAuthProvider.GOOGLE
-                        null, // success
-                        null, // failure
-                        null  // continuation
+                            MainActivity.this,
+                            "google", // Provider ID as a String
+                            null, // success url
+                            null, // failure url
+                            new Continuation<String>() {
+                                @Override
+                                public void resumeWith(Object result) {
+                                    if (result instanceof String) {
+                                        Log.d("OAuth", "OAuth Success URL: " + result);
+                                    } else if (result instanceof Throwable) {
+                                        Throwable t = (Throwable) result;
+                                        Log.e("OAuth", "OAuth Error", t);
+                                        webView.evaluateJavascript("handleAuthResult(false, false);", null);
+                                    }
+                                }
+
+                                @Override
+                                public CoroutineContext getContext() {
+                                    return EmptyCoroutineContext.INSTANCE;
+                                }
+                            }
                     );
                     startActivity(intent);
-                } catch (Exception e) {
+                } catch (AppwriteException e) {
                     Log.e("OAuth", "로그인 중 오류 발생", e);
                     webView.evaluateJavascript("handleAuthResult(false, false);", null);
                 }
@@ -99,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
                                     String script = "handleAuthResult(true, " + isMember + ");";
                                     runOnUiThread(() -> webView.evaluateJavascript(script, null));
                                 });
+                            } else {
+                                runOnUiThread(() -> webView.evaluateJavascript("handleAuthResult(false, false);", null));
                             }
                         }
 
@@ -133,35 +153,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 비동기 방식으로 멤버십 확인
     private void checkMembership(String email, MembershipCallback callback) {
         List<String> queries = Collections.singletonList(Query.Companion.equal("email", email));
 
         database.listDocuments(
-            "tree-kiosk", // 데이터베이스 ID
-            "owner", // 컬렉션 ID
-            queries,
-            new Continuation<DocumentList<Map<String, Object>>>() {
-                @Override
-                public void resumeWith(Object result) {
-                    boolean isActive = false;
-                    if (result instanceof DocumentList) {
-                        DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
-                        if (!response.getDocuments().isEmpty()) {
-                            Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
-                            Map<String, Object> data = firstDocument.getData();
-                            isActive = (Boolean) data.getOrDefault("active", false);
+                "tree-kiosk", // 데이터베이스 ID
+                "owner", // 컬렉션 ID
+                queries,
+                new Continuation<DocumentList<Map<String, Object>>>() {
+                    @Override
+                    public void resumeWith(Object result) {
+                        boolean isActive = false;
+                        if (result instanceof DocumentList) {
+                            DocumentList<Map<String, Object>> response = (DocumentList<Map<String, Object>>) result;
+                            if (!response.getDocuments().isEmpty()) {
+                                Document<Map<String, Object>> firstDocument = response.getDocuments().get(0);
+                                Map<String, Object> data = firstDocument.getData();
+                                isActive = (Boolean) data.getOrDefault("active", false);
+                            }
                         }
+                        boolean finalIsActive = isActive;
+                        runOnUiThread(() -> callback.onResult(finalIsActive));
                     }
-                    boolean finalIsActive = isActive;
-                    runOnUiThread(() -> callback.onResult(finalIsActive));
-                }
 
-                @Override
-                public CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
+                    @Override
+                    public CoroutineContext getContext() {
+                        return EmptyCoroutineContext.INSTANCE;
+                    }
                 }
-            }
         );
     }
 
