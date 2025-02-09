@@ -9,17 +9,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Treekiosk">
 
-        <activity android:name=".MainActivity">
+        <!-- ✅ MainActivity에 android:exported 추가 -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">  
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- ✅ OAuthActivity 추가 -->
+        <!-- ✅ OAuthActivity도 android:exported 추가 -->
         <activity
             android:name="io.appwrite.oauth.OAuthActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
