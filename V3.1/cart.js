@@ -1,5 +1,4 @@
 const cart = document.getElementById("cart-list");
-let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
 
 // Appwrite 클라이언트 초기화
 const client = new Appwrite.Client()
@@ -8,6 +7,10 @@ const client = new Appwrite.Client()
 
 const account = new Appwrite.Account(client);
 const database = new Appwrite.Databases(client);
+
+function getOrder() {
+    return JSON.parse(localStorage.getItem('order')) || [];
+}
 
 function init() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -22,7 +25,7 @@ function init() {
         addItemToOrder({ id: itemId, image, description, price , quantity });
         saveOrder(); // Save order to localStorage
         window.close();
-        }
+    }
     cartshow();
 }
 
@@ -33,6 +36,7 @@ const cartshow = debounce(function () {
 }, 300);
 
 function renderCart() {
+    let order = getOrder();
     cart.innerHTML = order.length === 0 ? `
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>장바구니가 비어있습니다.</div>
@@ -67,6 +71,7 @@ function updateItemQuantity(description, newQuantity) {
 }
 
 function saveOrder() {
+    let order = getOrder();
     localStorage.setItem('order', JSON.stringify(order));
 }
 
@@ -78,6 +83,7 @@ function deleteItem(index) {
 }
 
 function addItemToOrder({ id, image, description, price, quantity }) {
+    let order = getOrder();
     const existingIndex = getItemIndex(description);
     if (existingIndex !== -1) {
         order[existingIndex].quantity += quantity;
@@ -85,10 +91,10 @@ function addItemToOrder({ id, image, description, price, quantity }) {
     } else {
         order.push({ id, image, description, quantity, price });
     }
-    console.log('Current Order:', order); // Debugging: Log current order
 }
 
 function getItemIndex(description) {
+    let order = getOrder();
     return order.findIndex(item => item.description === description);
 }
 
