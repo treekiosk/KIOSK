@@ -76,6 +76,7 @@ function saveOrder() {
 }
 
 function deleteItem(index) {
+    let order = getOrder();
     order.splice(index, 1);
     saveOrder(); // Save order to localStorage after deletion
     cartshow();
