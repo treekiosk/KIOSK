@@ -1,5 +1,4 @@
             const li = document.getElementById("check");
-            let order = JSON.parse(localStorage.getItem('order')) || [];
             var shop = localStorage.getItem('name')?.replace(/"/g, '');
             const email = localStorage.getItem('email');
 
@@ -12,6 +11,7 @@
             const account = new Appwrite.Account(client);
 
             function renderCheckout() {
+            let order = getOrder();
                 li.innerHTML = '';
                 if (order.length === 0) {
                     li.innerHTML = `<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -84,13 +84,13 @@
                     // 첫 번째 문서를 기준으로 진행
                     const ownerDocument = ownerDocuments.documents[0];
                     const currentOrderNumber = ownerDocument.order || 0;
-            
+                    let order = getOrder();
                     // 주문 데이터 생성
                     const newOrder = {
                         shop: shop,
                         number: input,
                         ordernumber: currentOrderNumber.toString(), // 현재 주문 번호 사용
-                        order: JSON.stringify(order), // 주문 데이터 JSON 문자열로 변환
+                        order: order, // 주문 데이터 JSON 문자열로 변환
                     };
             
                     const validDocumentId = currentOrderNumber.toString();
