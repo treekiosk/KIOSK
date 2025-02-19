@@ -13,7 +13,9 @@ const ul = document.getElementById("list");
 const myModalEl = document.getElementById('staticBackdrop');
 const myModal = new bootstrap.Modal(myModalEl, { keyboard: false }); 
 
-let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
+function getOrder() {
+    return JSON.parse(localStorage.getItem('order')) || [];
+}
 
 // 초기화 함수
 window.addEventListener('load', init);
@@ -200,21 +202,19 @@ function resetForm(event) {
 // 주문 항목 추가
 function addItemToOrder({ id, image, description, price, quantity }) {
     const existingIndex = getItemIndex(description);
-
+    let order = getOrder(); // 최신 값 가져오기
+    
     if (existingIndex !== -1) {
         order[existingIndex].quantity += quantity;
         order[existingIndex].price += quantity * (price / quantity);
     } else {
         order.push({ id, image, description, quantity, price });
     }
-    saveOrder();
-}
-
-function saveOrder() {
     localStorage.setItem('order', JSON.stringify(order));
 }
 // 아이템 인덱스 찾기
 function getItemIndex(description) {
+    let order = getOrder(); // 최신 값 가져오기
     return order.findIndex(item => item.description.trim() === description.trim());
 }
 
@@ -238,11 +238,4 @@ function openWindow(name) {
   if (event.data === "home") {
     window.location.href = `index.html`;
   }
-});
-
-
-window.addEventListener("storage", (event) => {
-    if (event.key === "cart") {
-        cart = JSON.parse(event.newValue); // UI를 업데이트하는 함수 호출
-    }
 });
