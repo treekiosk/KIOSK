@@ -77,7 +77,7 @@ async function logout() {
             } else {
                 console.error('Unable to open Google logout window.');
             }
-    
+             clickCount = 0;
             // 상태 초기화
             localStorage.clear();
             sessionStorage.clear();
@@ -106,7 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthState();
 });
 
-
+document.getElementById('nouserlogout').addEventListener('click', async (e) => {
+        e.preventDefault(); 
+         await logout();
+});
 // Google OAuth 로그인
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     try {
