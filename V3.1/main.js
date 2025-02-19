@@ -239,3 +239,10 @@ function openWindow(name) {
     window.location.href = `index.html`;
   }
 });
+
+
+window.addEventListener("storage", (event) => {
+    if (event.key === "cart") {
+        cart = JSON.parse(event.newValue); // UI를 업데이트하는 함수 호출
+    }
+});
