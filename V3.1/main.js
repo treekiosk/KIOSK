@@ -27,7 +27,7 @@ function init() {
 
 // 데이터 로드
 function loadItem() {
-    fetch("image/file.json")
+    fetch("/image/file.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -100,7 +100,7 @@ function preloadImage(img) {
 // 편집 기능
 function edit(event) {
     const id = event.target.dataset.id;
-    fetch("image/file.json")
+    fetch("/image/file.json")
         .then(res => res.json())
         .then(data => {
             const item = data[id];
