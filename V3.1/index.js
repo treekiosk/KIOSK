@@ -47,21 +47,25 @@ async function setLocalUserData(email) {
 
 
 // 인증 상태 확인 및 UI 업데이트
-async function checkAuthState() {
+async function checkAuthState(retryCount = 5) {
     try {
         const user = await account.get();
-
-        if (user) {
-            console.log('로그인된 사용자:', user.email);
-            localStorage.setItem('name', user.name);
-            localStorage.setItem('email', user.email);
-            setLocalUserData(user.email);
-        }
+        console.log('로그인된 사용자:', user.email);
+        localStorage.setItem('name', user.name);
+        localStorage.setItem('email', user.email);
+        setLocalUserData(user.email);
     } catch (error) {
         console.error('로그인되지 않았거나 세션이 만료됨:', error);
-        toggleVisibility(['login-container'], ['front']);
+        
+        if (retryCount > 0) {
+            console.log(`세션 확인 재시도... (${6 - retryCount}/5)`);
+            setTimeout(() => checkAuthState(retryCount - 1), 1000); // 1초 후 다시 시도
+        } else {
+            toggleVisibility(['login-container'], ['front']);
+        }
     }
 }
+
 
 async function logout() {
         try {
