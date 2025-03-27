@@ -110,12 +110,17 @@ document.getElementById('nouserlogout').addEventListener('click', async (e) => {
         e.preventDefault(); 
          await logout();
 });
-// Google OAuth 로그인
+
+
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     try {
         await account.createOAuth2Session('google', window.location.origin, window.location.origin);
         console.log('Google OAuth 세션 생성 완료');
-        checkAuthState();
+        
+        // OAuth 리디렉션 후 세션이 설정되었는지 3초 후 다시 확인
+        setTimeout(() => {
+            checkAuthState();
+        }, 3000);
     } catch (error) {
         console.error('Google 로그인 중 오류 발생:', error);
     }
