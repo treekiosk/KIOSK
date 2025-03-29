@@ -103,7 +103,7 @@ async function logout() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuthState();
+    await checkAuthState();
 });
 
 
