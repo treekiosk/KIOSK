@@ -103,8 +103,12 @@ async function logout() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    await checkAuthState();
+    async function init() {
+            await checkAuthState();
+    }
+    init(); // async 함수 실행
 });
+
 
 
 // Google OAuth 로그인
