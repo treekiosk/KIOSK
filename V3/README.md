@@ -8,10 +8,6 @@
 <img src="https://img.shields.io/badge/Neutralinojs-F89901?style=for-the-badge&logo=neutralinojs&logoColor=white">
 <img src="https://img.shields.io/badge/Appwrite-FD366E?style=for-the-badge&logo=appwrite&logoColor=white">
 
-> ## 방문 수
-
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Ftreeentertainment%2FKIOSK%2Ftree%2Fmain%2FV3&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=%EB%B0%A9%EB%AC%B8%EC%9E%90+%EC%88%98&edge_flat=false)](https://hits.seeyoufarm.com)
-
 > ## 설치 방법
 
 1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
@@ -33,8 +29,8 @@
 
 > ## 문의
 
-[mrq.develop@hotmail.com](mailto:mrq.develop@hotmail.com)
+[moonlight10529@gmail.com](mailto:moonlight10529@gmail.com)
 
 > ## URL
 
-https://treekiosk.pages.dev
+[https://treekiosk.pages.dev](https://treekiosk.pages.dev)
