@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TREE KIOSK V4</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <div class="box is-flex is-justify-content-space-between boxer">
+        <h1 class="title is-inline">
+          TREE KIOSK V4
+        </h1>
+        <button class="button is-inline button is-link" id="gopay">                  
+          <img src="/image/send.svg" alt="전체 아이콘">
+        </button>
+      </div>
+        <div class="tabs is-boxed">
+          <ul>
+            <li class="is-active">
+              <a href="#all">
+                <span class="icon is-small">
+                  <img src="/image/align-justify.svg" alt="전체 아이콘">
+                </span>
+                <span>전체</span>
+              </a>
+            </li>
+            <li>
+              <a href="#drinks">
+                <span class="icon is-small">
+                  <img src="/image/coffee.svg" alt="음료 아이콘">
+                </span>
+                <span>음료</span>
+              </a>
+            </li>
+            <li>
+              <a href="#foods">
+                <span class="icon is-small">
+                  <img src="/image/cake.svg" alt="음식 아이콘">
+                </span>
+                <span>음식</span>
+              </a>
+            </li>
+            <li>
+              <a href="#services">
+                <span class="icon is-small">
+                  <img src="/image/film.svg" alt="서비스 아이콘">
+                </span>
+                <span>서비스</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        
+
+        <main>
+          <div class="page" id="all">
+            <div class="grid is-row-gap-8 is-column-gap-8" id="all-content">
+
+            </div>         
+           </div>
+          <div class="page" id="drinks">
+            <div class="grid is-row-gap-8 is-column-gap-8" id="drinks-content">
+
+            </div>
+          </div>
+          <div class="page" id="foods">
+            <div class="grid is-row-gap-8 is-column-gap-8" id="foods-content">
+
+            </div>
+          </div>
+          <div class="page" id="services">
+
+          </div>
+        </main>
+        <div id="menupan" class="sticky"></div>
+      </div>
+    </section>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-database-compat.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TREE KIOSK V4</title>
+    <link rel="stylesheet" href="bulma.css">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        TREE KIOSK V4
+      </h1>
+      <div id="login-container" style="display:none">
+      <button class="button is-success is-rounded google-login-icon" onclick="googleProvider()">구글 로그인</button>
+       </div>
+       <div id="startface" style="display:none">
+          <button onclick="window.location.href='main.html'" class="button is-link is-rounded">시작하기</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-database-compat.js"></script>
+  <script src="index.js"></script>
+</body>
+</html> 

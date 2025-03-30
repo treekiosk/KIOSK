@@ -1,0 +1,51 @@
+@import "bulma.min.css"; /* Bulma.css 중복 제거 */
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 200px;
+    margin: 50px auto;
+}
+
+.key {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.key:hover {
+    background-color: #f0f0f0;
+}
+
+.key:active {
+    background-color: #e0e0e0;
+}
+
+.phone-number {
+    margin-bottom: 20px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.clear-btn {
+    grid-column: span 3;
+    background-color: #ff3860;
+    color: white;
+}
+
+.input-group {
+ width: 50%;
+ margin-left: auto;
+ margin-right: auto;
+}
+
+.button {
+    width: 100px;
+    height: 100px;
+}

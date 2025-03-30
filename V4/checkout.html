@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+    <title>TREE KIOSK V4</title>
+    <link rel="stylesheet" href="checkout.css">
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <div class="box">
+        <center>
+      <h1 class="title is-spaced">
+        TREE KIOSK V4
+      </h1>
+      <h2 class="subtitle">
+        전화번호를 입력해주세요
+      </h2>
+    </center>
+    </div>
+    <div class="phone-number is-centered">
+      <input type="text" id="numberDisplay" class="input is-large" placeholder="전화번호" value="010-" style="text-align: center;" readonly> 
+     </div>
+      <div class="input-group">
+        <div class="columns is-mobile is-centered">
+          <div class="column is-narrow"><button class="button is-light 1" onclick="appendNumber(1)">1</button></div>
+          <div class="column is-narrow"><button class="button is-light 2" onclick="appendNumber(2)">2</button></div>
+          <div class="column is-narrow"><button class="button is-light 3" onclick="appendNumber(3)">3</button></div>
+      </div>
+      <div class="columns is-mobile is-centered">
+          <div class="column is-narrow"><button class="button is-light 4" onclick="appendNumber(4)">4</button></div>
+          <div class="column is-narrow"><button class="button is-light 5" onclick="appendNumber(5)">5</button></div>
+          <div class="column is-narrow"><button class="button is-light 6" onclick="appendNumber(6)">6</button></div>
+      </div>
+      <div class="columns is-mobile is-centered">
+          <div class="column is-narrow"><button class="button is-light 7" onclick="appendNumber(7)">7</button></div>
+          <div class="column is-narrow"><button class="button is-light 8" onclick="appendNumber(8)">8</button></div>
+          <div class="column is-narrow"><button class="button is-light 9" onclick="appendNumber(9)">9</button></div>
+      </div>
+      <div class="columns is-mobile is-centered">
+          <div class="column is-narrow"><button class="button is-light" onclick="clearDisplay()">CLEAR</button></div>
+          <div class="column is-narrow"><button class="button is-light" onclick="appendNumber(0)">0</button></div>
+          <div class="column is-narrow"><button class="button is-danger" onclick="backspace()">🔙</button></div>
+      </div>
+      <br>
+      <div class="columns is-centered">
+      <button class="button is-success" id="sendButton" style="display: none; width: 200px; height: 50px;">전송</button>
+    </div>
+  </div>  
+  </div>
+  </section>
+
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-database-compat.js"></script>
+  <script src="checkout.js"></script>
+</body>
+</html> 

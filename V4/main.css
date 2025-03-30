@@ -1,0 +1,207 @@
+@import "bulma.min.css"; /* Bulma.css 중복 제거 */
+
+.page { 
+    display: none; 
+}
+.active { 
+    display: block; 
+}
+
+.boxes {
+    height: 250px;
+}
+
+/* 스크롤바 숨기기 */
+html, body:not(#menupan) {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+body:not(#menupan)::-webkit-scrollbar {
+    display: none;
+}
+
+div.sticky {
+    backdrop-filter: blur(1.5rem);
+    position: sticky;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100px;
+    background-color: rgba(255, 255, 0, 0);
+    font-size: 20px;
+    border: 2px solid rgb(0, 247, 255);
+    border-radius: 12px;
+    padding: 5px;
+    height: 150px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+div.sticky.child {
+    display: flex;
+    margin: 10px;
+    align-items: center;
+    max-height: 50px;
+    width: 200px;
+}
+
+#menupan {
+    display: flex;
+    flex-direction: row; /* 가로 배치 */
+    overflow-x: auto; /* 가로 스크롤 허용 */
+    white-space: nowrap;
+    padding: 10px;
+    align-items: center;
+    overflow-y: hidden; /* 세로 스크롤 숨기기 */
+}
+
+.menupan {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    margin: 5px;
+}
+
+/* 이미지 컨테이너 */
+figure {
+    display: flex;
+    flex-direction: column; /* 배지를 아래로 정렬 */
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* 이미지 스타일 */
+figure img {
+    width: 150px;
+    height: 50px;
+    border-radius: 30px;
+    object-fit: cover;
+}
+
+/* HOT/ICE 배지 - 이미지 아래 */
+.badge {
+    margin-top: 5px; /* 이미지 아래로 이동 */
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* 이미지와 수량 조절을 가로 정렬 */
+.center {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 이미지와 수량 조절 간격 */
+}
+
+/* 수량 조절 버튼 컨테이너 */
+.basket {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 버튼 스타일 */
+.basket button {
+    max-height: 40px;
+    min-width: 40px;
+    font-size: 16px;
+}
+
+/* 수량 입력 필드 */
+.basket input {
+    width: 50px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  --moz-appearance: textfield;
+  pointer-events: none;
+  width: 100px;
+}
+  
+  .blurred-img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: pulse 2.5s infinite;
+    background-color: var(--text-color);
+  }
+  
+  @keyframes pulse {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
+  .blurred-img.loaded::before {
+    animation: none;
+    content: none;
+  }
+  
+  .blurred-img img {
+    opacity: 0;
+    transition: opacity 250ms ease-in-out;
+  }
+  
+  .blurred-img.loaded img {
+    opacity: 1;
+  }
+
+.all-content::before {
+    content: "";
+    display: inline-block;  /* 가상 요소를 표시 */
+    width: 16px;  /* 적절한 크기 설정 */
+    height: 16px;
+    background-image: url("/image/align-justify.svg");
+    background-repeat: no-repeat;
+}
+
+.drinks-content::before {
+    content: "";
+    display: inline-block;  /* 가상 요소를 표시 */
+    width: 16px;  /* 적절한 크기 설정 */
+    height: 16px;
+    background-image: url("/image/coffee.svg");
+    background-repeat: no-repeat;
+}
+
+#gopay > img {
+    width: 20px;
+    height: 20px;
+}
+
+.boxer {
+  height: 80px;
+}
+
+body {
+  background-color: white;
+}

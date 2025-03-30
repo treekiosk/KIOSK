@@ -1,0 +1,36 @@
+{
+    "cafe": {
+     "drinks" : [
+    {"key": 1, "name": "에스프레소", "image": "https://treekiosk.imgix.net/espresso.jpg", "price": "2000", "max": 10, "option": [
+       { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["hot", "ice"], "color": ["is-danger", "is-success"], "default": 0  },
+       { "key": 2, "name": "샷 추가", "type": "range", "price": "500", "max": 2, "min": 0, "default": 0 }
+    ]},
+    {"key": 2, "name": "아메리카노", "image": "https://treekiosk.imgix.net/americano.jpg","price": "3000", "max": 10, "option": [
+      { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["hot", "ice"], "color": ["is-danger", "is-success"], "default": 0  },
+      { "key": 2, "name": "샷 추가", "type": "range", "price": "500", "max": 2, "min": 0, "default": 0 }
+    ]},
+    {"key": 3, "name": "카페 라떼", "image": "https://treekiosk.imgix.net/cafe_latte.jpg","price": "3500", "max": 10, "option": [
+      { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["hot", "ice"], "color": ["is-danger", "is-success"], "default": 0  },
+      { "key": 2, "name": "샷 추가", "type": "range", "price": "500", "max": 2, "min": 0, "default": 0 }
+    ]},
+    {"key": 4, "name": "핫 초콜릿", "image": "https://treekiosk.imgix.net/hot_chocolate.jpg" , "price": "4000" , "max": 10,"option": [
+      { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["hot", "ice"], "color": ["is-danger", "is-success"], "default": 0  }
+      ]}, 
+    {"key": 5, "name": "아이스 티", "image": "https://treekiosk.imgix.net/ice_tea.jpg" , "price": "3500", "max": 10, "option": [
+       { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["ice"], "color": ["is-success"], "default": 0   }   
+     ]}
+    ],
+    "foods" : [
+    {"key": 6, "name": "크로플", "image": "https://treekiosk.imgix.net/croiffle.jpg" , "price": "3500", "max": 2},
+    {"key": 7, "name": "초콜릿 케이크 + 아메리카노 1잔", "image": "https://treekiosk.imgix.net/chococake%2Bamericano.jpg" , "max": 2, "price": "4500", "option": [
+        { "key": 1, "name": "HOT/ICE", "type": "radio", "options": ["hot", "ice"], "color": ["is-danger", "is-success"], "default": 0  },
+        { "key": 2, "name": "샷 추가", "type": "range", "price": "500", "max": 2, "min": 0, "default": 0 }
+     ]},
+    {"key": 8, "name": "계란 프라이 + 베이컨", "image": "https://treekiosk.imgix.net/egg_fri_bacon.jpg" , "price": "4000", "max": 2},
+    {"key": 9, "name": "초콜릿 케이크", "image": "https://treekiosk.imgix.net/chococake.jpg", "price": "3500", "max": 3}
+    ]
+    },
+    "cinema":   [
+        {"key": 2025032201, "name": "ELEMENTAL", "image": "https://treekiosk.imgix.net/chococake.jpg", "price": "5000"}
+    ]
+}

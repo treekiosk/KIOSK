@@ -1,0 +1,38 @@
+.google-login-icon:before {
+    background-image: url('image/google.svg');
+}
+
+.google-login-icon {
+    display: flex;
+    text-align: center;
+    width: 250px;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+  }
+
+.google-login-icon:before {
+    content: '';
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+    background-size: contain;
+}
+
+body {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+html, body {
+    overflow: hidden; /* Hide scrollbars */
+    background-color: white;
+  }
+  
+  

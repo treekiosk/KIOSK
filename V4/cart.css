@@ -1,0 +1,9 @@
+@import "bulma.min.css"; /* Bulma.css 중복 제거 */
+
+.card-footer {
+ width: 300px;
+}
+
+input[type="number"] {
+    width: 100px;
+}
