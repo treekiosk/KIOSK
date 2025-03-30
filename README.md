@@ -40,8 +40,8 @@
 
 > ## 문의
 
-(moonlight10529@gmail.com)[mailto:moonlight10529@gmail.com]
+[moonlight10529@gmail.com](mailto:moonlight10529@gmail.com)
 
 > ## URL
 
-(https://treekiosk.pages.dev)[https://treekiosk.pages.dev]
+[https://treekiosk.pages.dev](https://treekiosk.pages.dev)
