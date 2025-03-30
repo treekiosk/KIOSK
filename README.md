@@ -16,6 +16,8 @@
 
 [✅V3.1](https://github.com/treeentertainment/KIOSK/tree/main/V3.1)
 
+[✅V4](https://github.com/treeentertainment/KIOSK/tree/main/V4)
+
 > ## 설치 방법
 
 1. [다운로드](https://github.com/treeentertainment/KIOSK/releases/latest)
@@ -30,16 +32,16 @@
 
  - [X] V3
  - [X] V3.1
+ - [X] V4 
 
 >저작권
 
 [@202420505](https://github.com/202420505)
 
-
 > ## 문의
 
-moonlight10529@gmail.com
+(moonlight10529@gmail.com)[mailto:moonlight10529@gmail.com]
 
 > ## URL
 
-https://treekiosk.pages.dev
+(https://treekiosk.pages.dev)[https://treekiosk.pages.dev]
